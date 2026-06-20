@@ -6,10 +6,18 @@
 <title>Enterprise Website Prompt Architect</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css?v=2">
 </head>
 <body>
+
+<!-- Cinematic background: looping video + green/cyan glow + grid (decorative, behind app) -->
+<div id="bgFx" aria-hidden="true">
+  <video id="bgVideo" muted loop playsinline preload="auto"></video>
+  <div class="bg-tint"></div>
+  <div class="bg-glow"></div>
+  <div class="bg-grid"></div>
+</div>
 
 <div id="app">
 
@@ -575,6 +583,8 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js"></script>
+<script src="bg.js?v=1"></script>
 <script src="config.js?v=2"></script>
 <script src="data.js?v=4"></script>
 <script src="prompt-engine.js?v=6"></script>
