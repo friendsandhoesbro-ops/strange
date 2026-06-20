@@ -1356,3 +1356,76 @@ body {
   .splash-inner, .splash-mark, .splash-bar::after { animation: none; }
   .reveal-in { animation: none; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE PASS — kill horizontal overflow, stack/scroll rows,
+   right-size type. Applies to phones (<= 640px) and very small (<= 400px).
+   ══════════════════════════════════════════════════════════════════════════ */
+html, body { overflow-x: hidden; max-width: 100%; }
+.output-content, .terminal-body, .ftv-code { overflow-wrap: anywhere; }
+
+@media (max-width: 640px) {
+  /* layout breathing room */
+  .main { padding: 124px 14px 104px; }
+  .header-inner, .step-bar-inner, .footer-nav-inner { padding: 0 14px; }
+
+  /* header */
+  .logo-text { font-size: 14px; }
+  .logo-badge { font-size: 13px; padding: 1px 9px; }
+  .cto-toggle { padding: 6px 11px; font-size: 12px; }
+
+  /* headings */
+  .step-title { font-size: clamp(26px, 8vw, 36px); }
+  .step-desc { font-size: 14px; }
+
+  /* tabs become a horizontal scroll strip instead of overflowing */
+  .output-tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 0 8px; scrollbar-width: none; }
+  .output-tabs::-webkit-scrollbar { display: none; }
+  .tab-btn { padding: 13px 11px; font-size: 12.5px; flex-shrink: 0; }
+
+  /* toolbar: meta on its own line, action buttons wrap */
+  .output-toolbar { flex-direction: column; align-items: stretch; gap: 9px; }
+  .toolbar-actions { flex-wrap: wrap; gap: 6px; }
+  .tool-btn { font-size: 11.5px; padding: 6px 9px; }
+
+  /* prompt body */
+  .output-content { font-size: 11.5px; padding: 14px 12px; line-height: 1.7; }
+
+  /* scores */
+  .scores-section, .output-section, .build-section, .audit-section,
+  .cto-findings, .intel-card, .step-guide, .pair-suggest { padding: 18px 15px; }
+  .scores-header { flex-direction: column; gap: 14px; }
+  .overall-score { text-align: left; }
+  .scores-grid { grid-template-columns: 1fr 1fr; }
+
+  /* intelligence panel */
+  .intel-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .intel-pills { width: 100%; }
+  .intel-criteria, .intel-checklist { grid-template-columns: 1fr; }
+
+  /* build section */
+  .bs-config-row { flex-direction: column; }
+  .ql-grid { grid-template-columns: 1fr 1fr; }
+  .bs-platforms { grid-template-columns: 1fr !important; }
+  .bs-platform-card { width: 100%; }
+  .ft-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .ft-actions { flex-wrap: wrap; }
+
+  /* pairings / guidance rows wrap */
+  .pair-chip, .sg-pick { flex-wrap: wrap; }
+  .pair-tag { margin-left: 0; }
+
+  /* modals fit the screen */
+  .gloss-overlay, .ql-modal-overlay, .gloss-modal-overlay { padding: 14px; }
+  .gloss-modal, .ql-modal { padding: 20px 18px; }
+
+  /* keep the video ambient on mobile (grid lines hidden, glow + video stay) */
+  #bgFx.bg-ready #bgVideo { opacity: 0.5; }
+  .bg-glow { width: 700px; height: 320px; }
+}
+
+@media (max-width: 400px) {
+  .scores-grid, .ql-grid { grid-template-columns: 1fr; }
+  .logo-badge { display: none; }     /* reclaim header space on tiny screens */
+  .step-title { font-size: clamp(24px, 9vw, 30px); }
+}

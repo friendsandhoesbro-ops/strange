@@ -14,6 +14,11 @@
     var play = function () { var p = v.play(); if (p && p.catch) p.catch(function () {}); };
     var ready = function () { document.getElementById('bgFx') && document.getElementById('bgFx').classList.add('bg-ready'); play(); };
 
+    // Mobile browsers often block muted autoplay until a user gesture — retry on the first touch/click.
+    var resume = function () { play(); };
+    document.addEventListener('touchstart', resume, { once: true, passive: true });
+    document.addEventListener('click', resume, { once: true });
+
     try {
       if (v.canPlayType('application/vnd.apple.mpegurl')) {
         // Native HLS (Safari)
