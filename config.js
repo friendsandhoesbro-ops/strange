@@ -7,7 +7,8 @@
 // After deploying server.py to Render, paste its URL into REMOTE_API and push.
 // ──────────────────────────────────────────────────────────────────────────────
 (function () {
-  var REMOTE_API = '';  // e.g. 'https://prompt-architect-api.onrender.com'  (no trailing slash)
+  // ⬇️ THE ONE LINE TO CHANGE when you move the backend to another host/account.
+  var REMOTE_API = 'https://prompt-architect-api-s8rn.onrender.com';  // no trailing slash
 
   var host = location.hostname;
   var isLocal = (host === 'localhost' || host === '127.0.0.1' || host === '' || host === '::1');
