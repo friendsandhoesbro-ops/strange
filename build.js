@@ -82,7 +82,8 @@ let BACKEND_OK = null;   // null = unknown, true = local server present, false =
 function checkBackend() {
   try {
     if (typeof fetch !== 'function') { BACKEND_OK = false; updateBackendNote(); return; }
-    fetch('/api/ping', { cache: 'no-store' })
+    const url = (typeof EPA_apiUrl === 'function') ? EPA_apiUrl('/api/ping') : '/api/ping';
+    fetch(url, { cache: 'no-store' })
       .then(r => { BACKEND_OK = r.ok; updateBackendNote(); })
       .catch(() => { BACKEND_OK = false; updateBackendNote(); });
   } catch (e) { BACKEND_OK = false; updateBackendNote(); }
@@ -392,7 +393,7 @@ async function startBuild() {
   let startTime = Date.now();
 
   try {
-    const resp = await fetch('/api/build', {
+    const resp = await fetch((typeof EPA_apiUrl === 'function' ? EPA_apiUrl('/api/build') : '/api/build'), {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body:    JSON.stringify({
@@ -576,6 +577,7 @@ function renderFileTree() {
           <span>${buildState.files.length} Files Generated</span>
         </div>
         <div class="ft-actions">
+          ${(typeof EPA_isRemote === 'function' && EPA_isRemote()) ? '' : `
           <button class="tool-btn tool-btn-primary" onclick="saveAndOpen(true, this)">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M9.5 1L12 3.5v7a1 1 0 01-1 1H2a1 1 0 01-1-1V2a1 1 0 011-1h7.5zM4 1v3h5V1M6.5 7.5m-1.5 0a1.5 1.5 0 103 0 1.5 1.5 0 10-3 0" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
             Open in VS Code
@@ -583,8 +585,8 @@ function renderFileTree() {
           <button class="tool-btn" onclick="saveAndOpen(false, this)">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.2"/><path d="M1.5 6.5h10M6.5 1.5c1.5 1.4 2.3 3.1 2.3 5s-.8 3.6-2.3 5c-1.5-1.4-2.3-3.1-2.3-5s.8-3.6 2.3-5z" stroke="currentColor" stroke-width="1.2"/></svg>
             Preview in Browser
-          </button>
-          <button class="tool-btn" onclick="downloadZip()">
+          </button>`}
+          <button class="tool-btn ${(typeof EPA_isRemote === 'function' && EPA_isRemote()) ? 'tool-btn-primary' : ''}" onclick="downloadZip()">
             <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1v7M4 5l2.5 3L9 5M1 10h11" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Download ZIP
           </button>

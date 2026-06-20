@@ -20,9 +20,10 @@ import time
 import zipfile
 import io
 
-PORT       = 3737
+# Use the host's port when deployed (Render/Railway set $PORT); default 3737 locally.
+PORT       = int(os.environ.get('PORT', 3737))
 DIR        = os.path.dirname(os.path.abspath(__file__))
-LEARN_FILE = os.path.join(DIR, 'learning.json')  # local, non-sensitive usage log
+LEARN_FILE = os.path.join(DIR, 'learning.json')  # non-sensitive usage log
 API_URLS = {
     'claude': 'https://api.anthropic.com/v1/messages',
     'openai': 'https://api.openai.com/v1/chat/completions',

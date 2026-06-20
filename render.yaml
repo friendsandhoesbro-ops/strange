@@ -1,0 +1,12 @@
+# Render blueprint — hosts the build + learning backend (server.py).
+# Connect this repo at https://render.com and it auto-configures from this file.
+services:
+  - type: web
+    name: prompt-architect-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python server.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"

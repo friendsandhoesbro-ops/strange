@@ -561,10 +561,11 @@ const LearningCapture = {
       log.push({ ts: Date.now(), ...entry });
       localStorage.setItem(this.KEY, JSON.stringify(log.slice(-200)));
     } catch (e) { /* storage unavailable — learning is best-effort */ }
-    // Persist to the local backend if it's running (silently ignored on static hosting)
+    // Persist to the backend if one is reachable (silently ignored otherwise)
     try {
       if (typeof fetch === 'function') {
-        fetch('/api/learn', {
+        const url = (typeof EPA_apiUrl === 'function') ? EPA_apiUrl('/api/learn') : '/api/learn';
+        fetch(url, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(entry),
         }).catch(() => {});
@@ -577,7 +578,8 @@ const LearningCapture = {
   loadInsights() {
     try {
       if (typeof fetch !== 'function') return;
-      fetch('/api/insights')
+      const url = (typeof EPA_apiUrl === 'function') ? EPA_apiUrl('/api/insights') : '/api/insights';
+      fetch(url)
         .then(r => (r.ok ? r.json() : null))
         .then(j => { if (j && j.ok) LearningCapture.insights = j; })
         .catch(() => {});

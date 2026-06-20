@@ -1,0 +1,2 @@
+# No third-party dependencies — server.py uses the Python standard library only.
+# This file exists so cloud hosts (Render/Railway) recognise it as a Python app.
