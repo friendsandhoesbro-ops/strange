@@ -145,6 +145,31 @@
     assert(INDIVIDUAL_AVOID.indexOf('ERP Integration') !== -1, 'individual avoid');
   });
 
+  // ── Selection analysis: synergies / needs / conflicts ──────────────────────
+  test('analysis: detects a smart combination (goal + feature)', () => {
+    window.state.formData = { businessGoals: ['Lead Generation'], features: ['Email Marketing Integration'], projectType: 'company-website' };
+    const s = FeaturePairings.synergies();
+    assert(s.some(x => /Lead Generation/.test(x.a + x.b) && /Email Marketing/.test(x.a + x.b)), 'synergy not found');
+  });
+  test('analysis: flags a missing prerequisite', () => {
+    window.state.formData = { businessGoals: [], features: ['Subscription Management'], projectType: 'ecommerce' };
+    const n = FeaturePairings.needs();
+    assert(n.some(x => x.add === 'Payments & Billing'), 'prereq not flagged');
+  });
+  test('analysis: flags a goal that needs a feature', () => {
+    window.state.formData = { businessGoals: ['E-Commerce Sales'], features: [], projectType: 'ecommerce' };
+    const n = FeaturePairings.needs();
+    assert(n.some(x => x.add === 'Payments & Billing' && x.kind === 'goal'), 'goal-need not flagged');
+  });
+  test('analysis: detects a contradiction', () => {
+    window.state.formData = { businessGoals: ['Support Deflection'], features: ['Live Chat'], projectType: 'company-website' };
+    assert(FeaturePairings.conflicts().some(c => !c.tooMany), 'contradiction not found');
+  });
+  test('analysis: flags too many goals', () => {
+    window.state.formData = { businessGoals: ['Lead Generation', 'Brand Authority', 'E-Commerce Sales', 'Appointment Booking'], features: [] };
+    assert(FeaturePairings.conflicts().some(c => c.tooMany && c.count === 4), 'too-many-goals not flagged');
+  });
+
   // ── Glossary + learning ──────────────────────────────────────────────────────
   test('glossary covers key jargon and field labels', () => {
     ['cms', 'seo', 'crm'].forEach(k => assert(GLOSSARY[k], 'missing ' + k));

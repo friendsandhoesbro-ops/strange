@@ -566,6 +566,21 @@ body {
 .pair-chip-review:hover { border-color: rgba(251,191,36,0.5); }
 .pair-remove { background: linear-gradient(135deg, #f59e0b, #f87171) !important; }
 
+/* Selection analysis: synergies (green), contradictions (red), needs (amber) */
+.pair-synergy-head { color: var(--success, #34d399); }
+.pair-conflict-head { color: #f87171; margin-top: 18px; }
+.pair-need-head { color: #fbbf24; margin-top: 18px; }
+.pair-chip-synergy { cursor: default; }
+.pair-chip-synergy:hover { transform: none; border-color: rgba(52,211,153,0.4); }
+.pair-good { background: var(--success, #34d399) !important; }
+.pair-warn { background: linear-gradient(135deg, #f59e0b, #f87171) !important; }
+.pair-chip-conflict { cursor: default; }
+.pair-chip-conflict[data-remove] { cursor: pointer; }
+.pair-chip-conflict:hover { border-color: rgba(248,113,113,0.45); }
+.pair-tag-need { color: #fbbf24; border-color: rgba(251,191,36,0.35); }
+.pair-link { color: var(--accent, #6366f1); cursor: pointer; text-decoration: underline; }
+.pair-chip-conflict .pair-why em { color: var(--text-2, #c8c8d4); font-style: italic; }
+
 /* Plain-English glossary helper */
 .project-card { position: relative; }
 .gloss-info {

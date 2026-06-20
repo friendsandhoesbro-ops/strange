@@ -168,6 +168,57 @@ const INDIVIDUAL_AVOID = [
   'Two-Factor Auth', 'Project Management', 'Admin Dashboard', 'Customer Portal', 'CRM Integration',
 ];
 
+// ── Selection analysis knowledge bases (goals + features) ─────────────────────
+// SMART COMBINATIONS: both picked → they reinforce each other. [a, b, why]
+const SYNERGY_RULES = [
+  ['Payments & Billing', 'Subscription Management', 'recurring billing is powered by the payment engine'],
+  ['User Accounts & Auth', 'Two-Factor Auth', 'accounts plus 2FA make logins genuinely secure'],
+  ['User Accounts & Auth', 'Social Login (OAuth)', 'social login makes signing into accounts effortless'],
+  ['Blog / Content Hub', 'CMS (Content Management)', 'publish and edit your own content, no developer needed'],
+  ['Lead Generation', 'Email Marketing Integration', 'capture leads AND nurture them automatically'],
+  ['Brand Authority', 'Blog / Content Hub', 'authority is built and proven through published content'],
+  ['Thought Leadership / Content', 'Blog / Content Hub', 'your content goal needs a place to publish'],
+  ['Appointment Booking', 'Booking System', 'the goal and the exact tool that delivers it'],
+  ['E-Commerce Sales', 'Payments & Billing', 'so you can actually take the money'],
+  ['E-Commerce Sales', 'Review & Rating System', 'reviews lift product conversion and trust'],
+  ['Newsletter / Subscriber Growth', 'Email Marketing Integration', 'the goal and its engine, perfectly matched'],
+  ['Admin Dashboard', 'Role-Based Access Control', 'control exactly who on your team can do what'],
+  ['Support Deflection', 'AI Chatbot / Copilot', 'deflect repetitive questions 24/7 automatically'],
+  ['International Markets', 'Multi-language / i18n', 'serve overseas buyers in their own language'],
+  ['Booking System', 'Notifications (Email/SMS/Push)', 'automatic reminders dramatically cut no-shows'],
+  ['Payments & Billing', 'Affiliate Programme', 'pay partner commissions automatically'],
+  ['Customer Retention', 'Email Marketing Integration', 'loyalty and win-back emails keep customers coming back'],
+  ['Customer Portal', 'User Accounts & Auth', 'a private portal runs on secure logins'],
+  ['CRM Integration', 'Email Marketing Integration', 'captured leads flow straight into nurture campaigns'],
+];
+
+// PREREQUISITES: you picked a feature that needs another feature. [need, requires, why]
+const PREREQ_RULES = [
+  ['Subscription Management', 'Payments & Billing', 'subscriptions need a way to charge cards'],
+  ['Two-Factor Auth', 'User Accounts & Auth', '2FA sits on top of user accounts'],
+  ['Social Login (OAuth)', 'User Accounts & Auth', 'social login is a way INTO user accounts'],
+  ['Role-Based Access Control', 'User Accounts & Auth', 'roles only apply to logged-in users'],
+  ['Affiliate Programme', 'Payments & Billing', 'you need a way to pay commissions out'],
+  ['Customer Portal', 'User Accounts & Auth', 'a portal requires a login to work'],
+  ['Audit Logs', 'Admin Dashboard', 'logs need an admin area to be viewed in'],
+];
+
+// GOAL NEEDS A FEATURE: you picked a goal but not the feature that delivers it. [goal, feature, why]
+const GOAL_FEATURE_RULES = [
+  ['E-Commerce Sales', 'Payments & Billing', "you can't sell online without taking payment"],
+  ['Appointment Booking', 'Booking System', 'the booking goal needs an actual booking tool'],
+  ['Newsletter / Subscriber Growth', 'Email Marketing Integration', 'growing a list needs an email tool to manage it'],
+  ['International Markets', 'Multi-language / i18n', 'international buyers expect their own language'],
+  ['Support Deflection', 'AI Chatbot / Copilot', 'deflecting support needs self-serve answers'],
+  ['Upselling / Cross-selling', 'Payments & Billing', 'upsells and cross-sells happen at checkout'],
+];
+
+// CONTRADICTIONS: both picked but they pull against each other. [a, b, why, fix]
+const CONFLICT_RULES = [
+  ['Support Deflection', 'Live Chat', 'one goal reduces human support load, the other adds a human support channel — they can work against each other', 'Keep both only if Live Chat is aimed at sales, not general support. Otherwise the chatbot alone handles deflection.'],
+  ['Investor Relations', 'E-Commerce Sales', 'an investor-focused site and a shopping site speak to opposite audiences in opposite tones', 'Choose the primary purpose; the other belongs on its own page, not competing on the homepage.'],
+];
+
 // ══════════════════════════════════════════════════════════════════════════════
 const FeaturePairings = (() => {
   // `state` is a global lexical binding from app.js (a top-level const is NOT on
@@ -193,6 +244,51 @@ const FeaturePairings = (() => {
     const avoid = avoidSet();
     if (!avoid.size) return [];
     return selected().filter(x => avoid.has(x));
+  }
+
+  // ── Selection analysis: synergies, missing prerequisites, contradictions ────
+  const goalsList = () => fd().businessGoals || [];
+  const picked = (label) => goalsList().includes(label) || selected().includes(label);
+
+  // Pairs of the user's OWN picks that reinforce each other
+  function synergies() {
+    return SYNERGY_RULES
+      .filter(([a, b]) => picked(a) && picked(b))
+      .map(([a, b, why]) => ({ a, b, why }))
+      .slice(0, 5);
+  }
+
+  // Picks that need another feature to actually work (prereqs + goal→feature gaps)
+  function needs() {
+    const feats = selected(), goals = goalsList(), out = [], seen = new Set();
+    PREREQ_RULES.forEach(([need, req, why]) => {
+      if (feats.includes(need) && !feats.includes(req) && !seen.has(req)) {
+        out.push({ trigger: need, add: req, why, kind: 'feature' }); seen.add(req);
+      }
+    });
+    GOAL_FEATURE_RULES.forEach(([goal, feat, why]) => {
+      if (goals.includes(goal) && !feats.includes(feat) && !seen.has(feat)) {
+        out.push({ trigger: goal, add: feat, why, kind: 'goal' }); seen.add(feat);
+      }
+    });
+    return out.filter(n => FEATURES.includes(n.add)).slice(0, 5);
+  }
+
+  // Picks that pull against each other (+ a "too many goals" check)
+  function conflicts() {
+    const out = [];
+    CONFLICT_RULES.forEach(([a, b, why, fix]) => {
+      if (picked(a) && picked(b)) {
+        const removable = selected().includes(b) ? b : (selected().includes(a) ? a : null);
+        out.push({ a, b, why, fix, removable });
+      }
+    });
+    if (goalsList().length > 3) out.push({ tooMany: true, count: goalsList().length });
+    return out;
+  }
+
+  function noteLearning(kind) {
+    try { if (typeof LearningCapture !== 'undefined') LearningCapture.record({ event: 'resolve', field: kind }); } catch (e) {}
   }
 
   function chipFor(name) {
@@ -239,16 +335,89 @@ const FeaturePairings = (() => {
     return c;
   }
 
+  const esc = s => String(s).replace(/"/g, '&quot;');
+
   function render() {
     const c = ensureContainer();
     if (!c) return;
     const list = suggestions();
     const mm   = mismatches();
-    if (!list.length && !mm.length) { c.style.display = 'none'; c.innerHTML = ''; return; }
+    const syn  = synergies();
+    const nd   = needs();
+    const cf   = conflicts();
+    if (!list.length && !mm.length && !syn.length && !nd.length && !cf.length) {
+      c.style.display = 'none'; c.innerHTML = ''; return;
+    }
 
     const typeLabel = labelForType(fd().projectType);
     let html = '';
 
+    // 1. Smart combinations among the user's OWN picks (positive, teaches)
+    if (syn.length) {
+      html += `
+      <div class="pair-suggest-head pair-synergy-head">
+        <span class="pair-spark">✓</span>
+        Smart combinations in your build
+      </div>
+      <div class="pair-list">
+        ${syn.map(s => `
+          <div class="pair-chip pair-chip-synergy">
+            <span class="pair-add pair-good">✓</span>
+            <span class="pair-text">
+              <span class="pair-name">${s.a} + ${s.b}</span>
+              <span class="pair-why">${s.why}</span>
+            </span>
+          </div>`).join('')}
+      </div>`;
+    }
+
+    // 2. Contradictions / tensions in the user's picks (explained, with a fix)
+    if (cf.length) {
+      html += `
+      <div class="pair-suggest-head pair-conflict-head">
+        <span class="pair-spark">⚠️</span>
+        These may contradict — worth a look
+      </div>
+      <div class="pair-list">
+        ${cf.map(c2 => c2.tooMany
+          ? `<div class="pair-chip pair-chip-conflict">
+               <span class="pair-add pair-warn">!</span>
+               <span class="pair-text">
+                 <span class="pair-name">You've picked ${c2.count} goals</span>
+                 <span class="pair-why">A site that chases every goal converts poorly. Pick 1–2 primary goals and let the rest be secondary. <a class="pair-link" data-goto="3">Review goals</a></span>
+               </span>
+             </div>`
+          : `<div class="pair-chip pair-chip-conflict" ${c2.removable ? `data-remove="${esc(c2.removable)}"` : ''}>
+               <span class="pair-add ${c2.removable ? 'pair-remove' : 'pair-warn'}">${c2.removable ? '–' : '!'}</span>
+               <span class="pair-text">
+                 <span class="pair-name">${c2.a} &nbsp;vs&nbsp; ${c2.b}</span>
+                 <span class="pair-why">${c2.why}. <b>Fix:</b> ${c2.fix}${c2.removable ? ` <em>Tap to remove ${c2.removable}.</em>` : ''}</span>
+               </span>
+             </div>`).join('')}
+      </div>`;
+    }
+
+    // 3. Missing prerequisites / goal needs a feature (actionable: add it)
+    if (nd.length) {
+      html += `
+      <div class="pair-suggest-head pair-need-head">
+        <span class="pair-spark">➕</span>
+        Add these to make your picks work
+      </div>
+      <div class="pair-list">
+        ${nd.map(n => `
+          <button class="pair-chip" data-feature="${esc(n.add)}">
+            <span class="pair-add">+</span>
+            <span class="pair-text">
+              <span class="pair-name">${n.add}</span>
+              <span class="pair-why">Your <b>${n.trigger}</b> ${n.kind === 'goal' ? 'goal' : 'feature'} needs this — ${n.why}.</span>
+            </span>
+            <span class="pair-tag pair-tag-need">needed</span>
+          </button>`).join('')}
+      </div>`;
+    }
+
+    // 4. (existing) complementary add-on suggestions
     if (list.length) {
       html += `
       <div class="pair-suggest-head">
@@ -257,7 +426,7 @@ const FeaturePairings = (() => {
       </div>
       <div class="pair-list">
         ${list.map(s => `
-          <button class="pair-chip" data-feature="${s.feature.replace(/"/g, '&quot;')}">
+          <button class="pair-chip" data-feature="${esc(s.feature)}">
             <span class="pair-add">+</span>
             <span class="pair-text">
               <span class="pair-name">${s.feature}</span>
@@ -268,6 +437,7 @@ const FeaturePairings = (() => {
       </div>`;
     }
 
+    // 5. (existing) features that don't fit the project type
     if (mm.length) {
       html += `
       <div class="pair-suggest-head pair-review-head">
@@ -276,7 +446,7 @@ const FeaturePairings = (() => {
       </div>
       <div class="pair-list">
         ${mm.map(f => `
-          <button class="pair-chip pair-chip-review" data-remove="${f.replace(/"/g, '&quot;')}">
+          <button class="pair-chip pair-chip-review" data-remove="${esc(f)}">
             <span class="pair-add pair-remove">–</span>
             <span class="pair-text">
               <span class="pair-name">${f}</span>
@@ -292,24 +462,34 @@ const FeaturePairings = (() => {
     c.querySelectorAll('.pair-chip[data-feature]').forEach(btn =>
       btn.addEventListener('click', () => {
         const ch = chipFor(btn.dataset.feature);
-        if (ch && !ch.classList.contains('selected')) ch.click();   // reuse existing toggle flow
+        if (ch && !ch.classList.contains('selected')) { ch.click(); noteLearning('add'); }  // reuse toggle flow
         render();
       }));
 
     c.querySelectorAll('.pair-chip[data-remove]').forEach(btn =>
       btn.addEventListener('click', () => {
         const ch = chipFor(btn.dataset.remove);
-        if (ch && ch.classList.contains('selected')) ch.click();    // deselect via existing flow
+        if (ch && ch.classList.contains('selected')) { ch.click(); noteLearning('remove'); } // deselect
         render();
       }));
+
+    c.querySelectorAll('[data-goto]').forEach(el =>
+      el.addEventListener('click', () => { if (typeof goToStep === 'function') goToStep(+el.dataset.goto); }));
   }
 
+  let booted = false;
   function boot() {
+    if (booted) return;
     const grid = document.getElementById('featuresGrid');
     if (!grid) return;
+    booted = true;
     ensureContainer();
-    // After any selection change in the grid, refresh suggestions.
-    grid.addEventListener('click', () => render());
+    grid.addEventListener('click', () => render());   // refresh on any feature change
+    // Also refresh when the user arrives at the Features step (goals may have changed)
+    if (typeof window.goToStep === 'function') {
+      const orig = window.goToStep;
+      window.goToStep = function (n) { orig.apply(this, arguments); if (n === 4) { try { render(); } catch (e) {} } };
+    }
     render();
   }
 
@@ -320,5 +500,5 @@ const FeaturePairings = (() => {
   }
   window.addEventListener('load', boot); // safety net regardless of script order
 
-  return { render, suggestions };
+  return { render, suggestions, synergies, needs, conflicts };
 })();
