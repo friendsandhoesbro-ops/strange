@@ -776,20 +776,23 @@ order above (complete core first) still applies so nothing is ever left broken.`
     const s = this.style;
     if (!s) return '';
     const dna = s.dna || {};
-    return `SELECTED VISUAL STYLE: "${s.name}" — build this site unmistakably in this style.
-This exact direction is non-negotiable; do not fall back to a generic template look.
-
-• Mood        : ${dna.mood || ''}
-• Typography  : ${dna.typography || ''}
-• Colour      : ${dna.color || ''}
-• Layout      : ${dna.layout || ''}
-• Motion      : ${dna.motion || ''}
-• Imagery     : ${dna.imagery || ''}
-• Signature   : ${dna.signature || ''}
-
-Commit fully to this style across every page and section. Two different businesses
-should never be guessable as coming from the same template — this style is ${s.name}.
-`;
+    let out = `SELECTED VISUAL STYLE: "${s.name}" — build this site unmistakably in this style.\n`;
+    out += `This exact direction is non-negotiable; do not fall back to a generic template look.\n\n`;
+    out += `• Mood        : ${dna.mood || ''}\n`;
+    out += `• Typography  : ${dna.typography || ''}\n`;
+    if (s.fonts) out += `• Fonts       : ${s.fonts}\n`;
+    out += `• Colour      : ${dna.color || ''}\n`;
+    out += `• Layout      : ${dna.layout || ''}\n`;
+    out += `• Motion      : ${dna.motion || ''}\n`;
+    out += `• Imagery     : ${dna.imagery || ''}\n`;
+    out += `• Signature   : ${dna.signature || ''}\n`;
+    if (s.techniques && s.techniques.length) {
+      out += `\nSIGNATURE TECHNIQUES TO IMPLEMENT (these define the style — build them):\n`;
+      s.techniques.forEach(t => { out += `• ${t}\n`; });
+    }
+    out += `\nCommit fully to this style across every page and section. Two different businesses\n`;
+    out += `should never be guessable as coming from the same template — this style is ${s.name}.\n`;
+    return out;
   }
 
   // AI-generated imagery prompts + an easy path for the owner to use their own media.

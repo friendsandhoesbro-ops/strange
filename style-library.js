@@ -85,6 +85,37 @@ const STYLE_LIBRARY = [
     ],
     source: 'seed',
   },
+  {
+    id: '3d-creator-portfolio',
+    name: '3D Creator Portfolio',
+    category: 'full-site',
+    aesthetics: ['bold', 'creative', 'modern', '3d', 'kinetic', 'artistic', 'dark', 'disruptor'],
+    industries: ['creative', 'media', 'design', '3d', 'motion', 'animation', 'agency', 'entertainment', 'art', 'gaming'],
+    fonts: "Kanit (Google Fonts, weights 300–900) for everything.",
+    dna: {
+      mood: 'Bold, kinetic 3D-creator showcase. Near-black, dramatic, playful-yet-premium — the WORK and the MOTION are the brand. Floating 3D objects, magnetic interactions, and scroll-driven movement everywhere.',
+      typography: 'MASSIVE font-black UPPERCASE hero headline (up to ~17vw, leading-none, tracking-tight) in a silver gradient (background: linear-gradient(180deg,#646973,#BBCCD7), -webkit-background-clip:text, text-fill transparent). Uppercase nav + labels with wide tracking. Fluid clamp() typography that scales huge from mobile to ultrawide.',
+      color: 'Base #0C0C0C (near-black) on html/body/wrapper; light text #D7E2EA. Headlines use the silver gradient (#646973→#BBCCD7). ONE vivid multi-stop CTA pill gradient: linear-gradient(123deg,#18011F 7%,#B600A8 37%,#7621B0 72%,#BE4C00 100%) with an inset glow and a 2px white outline (-3px offset). One full WHITE (#FFFFFF) section mid-page for hard contrast.',
+      layout: 'Full-viewport hero with a centred portrait cutout; alternating dark/white sections with heavy rounded-top corners (rounded-t-[60px]); a scroll-reactive image marquee (two rows moving opposite directions); sticky-stacking project cards that scale down as you pass them; asymmetric 40/60 image grids; floating decorative 3D objects in the corners.',
+      motion: 'Framer Motion throughout. Staggered FadeIn on whileInView (y/x offsets, ease [0.25,0.1,0.25,1], once). Magnetic mouse-following effect on the hero portrait. Character-by-character scroll-driven opacity reveal (0.2→1) on the about paragraph. Dual-direction scroll-driven marquee (rows translate on scrollY). Sticky card-stacking via useScroll/useTransform scale. willChange:transform + passive scroll listeners for performance.',
+      imagery: '3D-rendered objects (moon, lego block, abstract groups), a portrait cutout, and glossy project mockups — all with heavy border-radius (rounded-[60px]). Dark, rendered, glossy aesthetic; lazy-loaded marquee tiles ~420×270.',
+      signature: 'The magnetic hero portrait + the sticky-stacking scaling project cards + the dual-direction scroll marquee + the char-by-char text reveal + the huge silver-gradient "HI, I\'M [NAME]" hero.',
+    },
+    techniques: [
+      'Magnetic hover (Magnet component): translate an element toward the cursor (translate3d ÷ strength) when within a padding radius; 0.3s ease-out in, 0.6s ease-in-out out; willChange:transform.',
+      'Sticky card-stacking: project cards are sticky (top-24) inside tall containers and scale down via useScroll+useTransform (targetScale = 1 − (total−1−i)·0.03) so they stack as you scroll past.',
+      'Scroll-reactive marquee: two rows of tripled images translate horizontally by (scrollY − sectionTop + innerHeight)·0.3 in opposite directions; passive listener.',
+      'Character-by-character text reveal: each char animates opacity 0.2→1 by scroll progress (useScroll offset ["start 0.8","end 0.2"]) using an invisible placeholder + absolutely-positioned animated span.',
+      'Gradient pill CTA: rounded-full button with a multi-stop diagonal gradient, inset glow box-shadow, and a 2px white outline offset −3px; uppercase, tracking-widest.',
+      'Reusable staggered FadeIn wrapper (whileInView, once, margin 50px) with configurable delay/duration/x/y and ease [0.25,0.1,0.25,1].',
+    ],
+    imagePrompts: [
+      'glossy 3D-rendered abstract object floating on a near-black (#0C0C0C) background, soft studio lighting, subtle reflections, isometric, high detail, portfolio hero asset',
+      '3D-rendered character or product cutout, dramatic rim light, dark glossy backdrop, crisp clean edges for a transparent PNG, premium creative-studio look',
+      'minimal 3D icon (moon / lego-style block / abstract group) in muted tones with soft shadows, transparent background, decorative corner accent',
+    ],
+    source: 'user-prompt',
+  },
 ];
 
 // ── Query / selection helpers ─────────────────────────────────────────────────
