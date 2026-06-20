@@ -333,6 +333,29 @@
         <p class="step-desc">Choose your preferred technology stack, or let the system recommend the optimal enterprise architecture.</p>
       </div>
 
+      <div class="form-grid" style="margin-bottom:22px">
+        <div class="form-group full-width">
+          <label class="form-label">Visual style</label>
+          <select class="form-input form-select" id="visualStyle" onchange="updateField('visualStyle', this.value)">
+            <option value="auto">Auto — pick a fresh, unique style for me (recommended)</option>
+          </select>
+          <div class="char-count">Auto varies the design so your site doesn’t look like everyone else’s. Or pick a specific style from our library.</div>
+        </div>
+        <div class="form-group full-width">
+          <label class="form-label">Content manager — so you can edit text, images &amp; video yourself</label>
+          <div class="entity-select">
+            <button type="button" class="entity-opt active" data-cms="yes" onclick="setCMS(true)">
+              <span class="entity-emoji">🛠️</span>
+              <span class="entity-text"><span class="entity-name">Yes — I’ll manage it myself</span><span class="entity-desc">Adds a simple admin to upload &amp; edit content. Best for beginners.</span></span>
+            </button>
+            <button type="button" class="entity-opt" data-cms="no" onclick="setCMS(false)">
+              <span class="entity-emoji">⌨️</span>
+              <span class="entity-text"><span class="entity-name">No — a developer will manage it</span><span class="entity-desc">Skip the admin/CMS for a lighter build.</span></span>
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div class="recommend-card" id="recommendCard" onclick="toggleRecommended()">
         <div class="recommend-check" id="recommendCheck">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-6" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -599,13 +622,14 @@
 <script src="bg.js?v=2"></script>
 <script src="config.js?v=2"></script>
 <script src="data.js?v=4"></script>
-<script src="prompt-engine.js?v=6"></script>
+<script src="style-library.js?v=1"></script>
+<script src="prompt-engine.js?v=7"></script>
 <script src="scoring.js?v=3"></script>
 <script src="intelligence.js?v=4"></script>
 <script src="glossary.js?v=2"></script>
 <script src="pairings.js?v=4"></script>
 <script src="build.js?v=6"></script>
-<script src="app.js?v=6"></script>
+<script src="app.js?v=7"></script>
 <script src="guide.js?v=1"></script>
 <script src="splash.js?v=1"></script>
 <script src="reveal.js?v=1"></script>

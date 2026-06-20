@@ -17,6 +17,10 @@ class PromptEngine {
     this.store = data.useRecommended ? this.rec.storage   : (data.storage      || this.rec.storage);
     this.ana   = data.analytics || 'Google Analytics 4 + Google Search Console';
     this.platform = data.targetPlatform || 'Claude Code';
+    // Pull a distinct visual style from the library (auto-varies, or honours a named pick).
+    this.style = (typeof StyleLibrary !== 'undefined') ? StyleLibrary.resolve(data) : null;
+    // CMS / admin is asked per project; default to included for beginner-friendliness.
+    this.includeCMS = data.includeCMS !== false;
   }
 
   // ── PUBLIC: generate all three outputs ────────────────────────────────────
@@ -176,7 +180,19 @@ order above (complete core first) still applies so nothing is ever left broken.`
 
     // ── DESIGN SYSTEM ─────────────────────────────────────────────────────
     h1('DESIGN SYSTEM SPECIFICATION');
+    const styleBlock = this._styleDirective();
+    if (styleBlock) lines.push(styleBlock);
     lines.push(this._designSystem());
+
+    // ── IMAGERY & MEDIA ───────────────────────────────────────────────────
+    h1('IMAGERY & MEDIA DIRECTION');
+    lines.push(this._imageryDirection());
+
+    // ── CONTENT MANAGEMENT (CMS / ADMIN) ──────────────────────────────────
+    if (this.includeCMS) {
+      h1('CONTENT MANAGEMENT — OWNER CAN EDIT EVERYTHING');
+      lines.push(this._cmsSection());
+    }
 
     // ── PAGE SPECIFICATIONS ───────────────────────────────────────────────
     h1('PAGE & SCREEN SPECIFICATIONS');
@@ -752,6 +768,81 @@ order above (complete core first) still applies so nothing is ever left broken.`
       hero: 'Asymmetric 7/5 split: headline + sub + CTA left, layered image composition right (one main image, one offset card with a stat or testimonial overlapping its corner).',
       signature: 'Section headings rise 24px and fade in with 80ms stagger between heading/body/CTA; one stat counter animates in the social-proof bar.',
     };
+  }
+
+  // Leading visual-style directive pulled from the growing style library.
+  // This is what makes two sites with the same choices come out different.
+  _styleDirective() {
+    const s = this.style;
+    if (!s) return '';
+    const dna = s.dna || {};
+    return `SELECTED VISUAL STYLE: "${s.name}" — build this site unmistakably in this style.
+This exact direction is non-negotiable; do not fall back to a generic template look.
+
+• Mood        : ${dna.mood || ''}
+• Typography  : ${dna.typography || ''}
+• Colour      : ${dna.color || ''}
+• Layout      : ${dna.layout || ''}
+• Motion      : ${dna.motion || ''}
+• Imagery     : ${dna.imagery || ''}
+• Signature   : ${dna.signature || ''}
+
+Commit fully to this style across every page and section. Two different businesses
+should never be guessable as coming from the same template — this style is ${s.name}.
+`;
+  }
+
+  // AI-generated imagery prompts + an easy path for the owner to use their own media.
+  _imageryDirection() {
+    const s = this.style;
+    const imgPrompts = (s && s.imagePrompts && s.imagePrompts.length) ? s.imagePrompts : null;
+    const ind = this.d.industry || 'the business';
+    let out = `Most owners are not designers and have no photography yet. Handle imagery in two layers:\n\n`;
+    out += `1. AI-GENERATED PLACEHOLDERS (default)\n`;
+    out += `• Generate art-directed images that match the visual style above — never generic stock.\n`;
+    out += `• Use these exact, style-matched generation prompts as a starting point:\n`;
+    if (imgPrompts) {
+      imgPrompts.forEach(p => { out += `   - "${p}"\n`; });
+    } else {
+      out += `   - "art-directed hero image for a ${ind} brand, matching the selected visual style, cinematic lighting, cohesive colour grade, ample negative space"\n`;
+    }
+    out += `• Apply ONE consistent treatment (grade / duotone / grain) to every image — mixed image styles are the #1 amateur tell.\n`;
+    out += `• Every image: correct width/height (zero layout shift), object-fit cover, lazy-loaded below the fold, descriptive alt text.\n\n`;
+    out += `2. OWNER'S OWN MEDIA (must be effortless)\n`;
+    out += `• Wherever an image or video appears, it MUST be replaceable by a non-technical owner — no code.\n`;
+    if (this.includeCMS) {
+      out += `• Wire every image/video to the content manager (see Content Management section) so the owner can upload, swap, crop, reorder, or delete media from a simple admin screen.\n`;
+    } else {
+      out += `• Provide a clearly documented, single place to swap images (a media folder + a short README) so a non-developer can replace them confidently.\n`;
+    }
+    out += `• Support common formats; auto-optimise on upload (resize + WebP). Show a friendly preview before saving.\n`;
+    out += `• Videos: muted, looping, lazy hero/section backgrounds where the style calls for it, with a poster image fallback.`;
+    return out;
+  }
+
+  // Beginner-friendly CMS / admin so owners can manage content themselves.
+  _cmsSection() {
+    const name = this.d.businessName || 'the owner';
+    return `Build a simple, beginner-friendly content manager so ${name} can run the site without a developer.
+
+WHAT THE OWNER MUST BE ABLE TO DO (no code, plain-language UI):
+• Edit any text on the site (headlines, paragraphs, buttons, prices, contact details).
+• Upload, replace, crop, reorder, and DELETE images and videos — with live preview.
+• Add / edit / remove repeatable items (services, projects, products, team, testimonials,
+  blog posts, FAQs) — whatever this site type uses.
+• Toggle sections on/off and reorder them.
+• Save as draft and publish; undo a recent change.
+
+HOW TO BUILD IT (match the chosen platform & stack):
+• A protected /admin area behind a simple secure login (one owner account is fine to start).
+• Use the platform's native CMS where it has one (e.g. a headless CMS, Sanity/Payload, or the
+  builder's built-in content editor); otherwise a lightweight admin with a media library.
+• Store editable content as data (not hard-coded) so edits appear on the live site immediately.
+• Media library: drag-and-drop upload, automatic resize + WebP, alt-text field, delete with confirm.
+• Friendly empty states and inline help — assume the owner has never used a CMS before.
+
+KEEP IT SIMPLE: this is for a non-technical owner. Favour clarity over power. Do not expose
+database internals, code, or developer jargon anywhere in the admin UI.`;
   }
 
   _designSystem() {

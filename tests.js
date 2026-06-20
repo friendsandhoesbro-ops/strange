@@ -79,6 +79,30 @@
     has(b, 'Get in Touch');
   });
 
+  // ── Style library + CMS + imagery ──────────────────────────────────────────
+  test('style library resolves a style and names are listed', () => {
+    assert(StyleLibrary.names().length >= 2, 'library too small');
+    const s = StyleLibrary.resolve({ brandPositioning: 'Premium / luxury — top of the market', industry: 'Legal Services' });
+    assert(s && s.name && s.dna, 'no style resolved');
+  });
+  test('build prompt injects the selected visual style', () => {
+    const b = new PromptEngine({ businessName: 'X', brandPositioning: 'Premium / luxury — top of the market', industry: 'Legal Services' }).generateAll().build;
+    has(b, 'SELECTED VISUAL STYLE');
+  });
+  test('a named visual style is honoured', () => {
+    const name = StyleLibrary.names()[0];
+    const eng = new PromptEngine({ businessName: 'X', visualStyle: name });
+    eq(eng.style.name, name);
+  });
+  test('imagery direction is always included', () => {
+    const b = new PromptEngine({ businessName: 'X' }).generateAll().build;
+    has(b, 'IMAGERY & MEDIA'); has(b, 'AI-GENERATED PLACEHOLDERS');
+  });
+  test('CMS section included by default, omitted when opted out', () => {
+    has(new PromptEngine({ businessName: 'X' }).generateAll().build, 'CONTENT MANAGEMENT');
+    nothas(new PromptEngine({ businessName: 'X', includeCMS: false }).generateAll().build, 'CONTENT MANAGEMENT — OWNER');
+  });
+
   // ── Intelligence layer ───────────────────────────────────────────────────────
   test('Intelligence.run returns score, checklist, architecture', () => {
     const I = Intelligence.run(bizB2B, new PromptEngine(bizB2B).generateAll(), { mode: 'guided' });

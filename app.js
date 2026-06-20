@@ -16,6 +16,8 @@ const state = {
     analytics: '', authentication: '', storage: '',
     useRecommended: true,
     targetPlatform: 'Claude Code',
+    visualStyle: 'auto',        // 'auto' (varies) or a named style from the library
+    includeCMS: true,           // per-project: include a beginner CMS/admin
     compliance: [],
     additionalContext: '',
   },
@@ -45,6 +47,23 @@ function init() {
 
   // Warm up the learning loop (best-effort; no-op on static hosting)
   if (typeof LearningCapture !== 'undefined') { try { LearningCapture.loadInsights(); } catch (e) {} }
+
+  // Populate the Visual Style picker from the (growing) style library
+  if (typeof StyleLibrary !== 'undefined') {
+    try {
+      const sel = document.getElementById('visualStyle');
+      if (sel) StyleLibrary.names().forEach(n => {
+        const o = document.createElement('option'); o.value = n; o.textContent = n; sel.appendChild(o);
+      });
+    } catch (e) {}
+  }
+}
+
+// Per-project CMS choice (Step 5)
+function setCMS(on) {
+  state.formData.includeCMS = on;
+  document.querySelectorAll('.entity-opt[data-cms]').forEach(el =>
+    el.classList.toggle('active', el.dataset.cms === (on ? 'yes' : 'no')));
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
