@@ -1,0 +1,9 @@
+# Static deployment config for Netlify.
+# The app is pure HTML/CSS/JS — no build step. Just publish the folder as-is.
+[build]
+  publish = "."
+  command = ""
+
+# The /api/* endpoints only exist in the desktop (Python) version. On static
+# hosting they simply 404, and the app detects that and shows the web-version
+# guidance automatically — so no redirects are required.

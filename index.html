@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enterprise Website Prompt Architect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-mark">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 3h6v6H3V3zm8 0h6v6h-6V3zm0 8h6v6h-6v-6zm-8 0h6v6H3v-6z" fill="url(#grad)"/><defs><linearGradient id="grad" x1="0" y1="0" x2="20" y2="20" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs></svg>
+        </div>
+        <span class="logo-text">Prompt Architect</span>
+        <span class="logo-badge">Enterprise</span>
+      </div>
+      <div class="header-actions">
+        <div class="cto-toggle" id="ctoToggle" onclick="toggleCTOMode()">
+          <div class="cto-indicator" id="ctoIndicator"></div>
+          <span>CTO Mode</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Step Indicator -->
+  <div class="step-bar" id="stepBar">
+    <div class="step-bar-inner">
+      <div class="step-item active" data-step="1" onclick="jumpToStep(1)">
+        <div class="step-num">1</div>
+        <span>Business</span>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item" data-step="2" onclick="jumpToStep(2)">
+        <div class="step-num">2</div>
+        <span>Project</span>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item" data-step="3" onclick="jumpToStep(3)">
+        <div class="step-num">3</div>
+        <span>Goals</span>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item" data-step="4" onclick="jumpToStep(4)">
+        <div class="step-num">4</div>
+        <span>Features</span>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item" data-step="5" onclick="jumpToStep(5)">
+        <div class="step-num">5</div>
+        <span>Technical</span>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item" data-step="6" onclick="jumpToStep(6)">
+        <div class="step-num">6</div>
+        <span>Compliance</span>
+      </div>
+      <div class="step-connector"></div>
+      <div class="step-item" data-step="7" onclick="jumpToStep(7)">
+        <div class="step-num">7</div>
+        <span>Generate</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="main">
+
+    <!-- Step 1: Business Information -->
+    <div class="step-panel active" id="step-1">
+      <div class="step-header">
+        <div class="step-tag">Step 1 of 6</div>
+        <h1 class="step-title">Business Information</h1>
+        <p class="step-desc">Tell us about your business. The more detail you provide, the more precise and enterprise-grade your generated prompt will be.</p>
+      </div>
+      <div class="form-grid">
+        <div class="form-group full-width">
+          <label class="form-label">Who is this website for?</label>
+          <div class="entity-select">
+            <button type="button" class="entity-opt active" data-entity="business" onclick="setEntityType('business')">
+              <span class="entity-emoji">🏢</span>
+              <span class="entity-text"><span class="entity-name">A Business / Organisation</span><span class="entity-desc">A company, agency, shop, or team</span></span>
+            </button>
+            <button type="button" class="entity-opt" data-entity="individual" onclick="setEntityType('individual')">
+              <span class="entity-emoji">🧑‍💻</span>
+              <span class="entity-text"><span class="entity-name">An Individual (Personal)</span><span class="entity-desc">You — freelancer, creator, portfolio</span></span>
+            </button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="businessNameLabel">Business Name <span class="required">*</span></label>
+          <input type="text" class="form-input" id="businessName" placeholder="e.g. Meridian Construction Group" oninput="updateField('businessName', this.value)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Industry <span class="required">*</span></label>
+          <select class="form-input form-select" id="industry" onchange="updateField('industry', this.value)">
+            <option value="">Select industry...</option>
+            <option>Construction & Real Estate</option>
+            <option>Legal & Professional Services</option>
+            <option>Healthcare & Medical</option>
+            <option>Financial Services & Fintech</option>
+            <option>Technology & Software</option>
+            <option>E-Commerce & Retail</option>
+            <option>Manufacturing & Industrial</option>
+            <option>Marketing & Creative Agency</option>
+            <option>Education & Training</option>
+            <option>Hospitality & Tourism</option>
+            <option>Logistics & Supply Chain</option>
+            <option>Energy & Utilities</option>
+            <option>Non-Profit & Government</option>
+            <option>Consulting & Advisory</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group full-width">
+          <label class="form-label">Business Description <span class="required">*</span></label>
+          <textarea class="form-input form-textarea" id="description" placeholder="Describe what your business does, your core offering, unique value proposition, and mission..." oninput="updateField('description', this.value)"></textarea>
+          <div class="char-count" id="descCount">0 characters — aim for 150+</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Country / Region</label>
+          <select class="form-input form-select" id="country" onchange="updateField('country', this.value)">
+            <option value="">Select country/region...</option>
+            <option>Nigeria</option>
+            <option>United States</option>
+            <option>United Kingdom</option>
+            <option>Canada</option>
+            <option>Australia</option>
+            <option>Ghana</option>
+            <option>Kenya</option>
+            <option>South Africa</option>
+            <option>Egypt</option>
+            <option>India</option>
+            <option>Pakistan</option>
+            <option>United Arab Emirates</option>
+            <option>Saudi Arabia</option>
+            <option>Germany</option>
+            <option>France</option>
+            <option>Netherlands</option>
+            <option>Spain</option>
+            <option>Italy</option>
+            <option>Brazil</option>
+            <option>Mexico</option>
+            <option>Singapore</option>
+            <option>Malaysia</option>
+            <option>Philippines</option>
+            <option>Indonesia</option>
+            <option>Japan</option>
+            <option>China</option>
+            <option>Europe (multi-country)</option>
+            <option>Africa (multi-country)</option>
+            <option>Middle East (multi-country)</option>
+            <option>Asia-Pacific (multi-country)</option>
+            <option>Worldwide / Global</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Target Market</label>
+          <select class="form-input form-select" id="targetMarket" onchange="updateField('targetMarket', this.value)">
+            <option value="">Select target market...</option>
+            <option>Consumers (B2C) — general public</option>
+            <option>Consumers (B2C) — premium / high-income</option>
+            <option>Consumers (B2C) — young adults / Gen Z</option>
+            <option>Consumers (B2C) — families</option>
+            <option>Small & medium businesses (B2B)</option>
+            <option>Mid-market companies (B2B)</option>
+            <option>Enterprise & corporates (B2B)</option>
+            <option>Startups & tech companies (B2B)</option>
+            <option>Government & public sector (B2G)</option>
+            <option>Non-profits & NGOs</option>
+            <option>Local community / city-level</option>
+            <option>Both businesses and consumers (B2B + B2C)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Core Services</label>
+          <select class="form-input form-select" id="services" onchange="updateField('services', this.value)">
+            <option value="">Select core service type...</option>
+            <option>Design, build & manufacturing</option>
+            <option>Professional services & consulting</option>
+            <option>Repairs, maintenance & support</option>
+            <option>Sales & distribution</option>
+            <option>Installation & contracting</option>
+            <option>Software development & IT services</option>
+            <option>Marketing & creative services</option>
+            <option>Training & education services</option>
+            <option>Healthcare & wellness services</option>
+            <option>Legal & financial services</option>
+            <option>Logistics, delivery & transport</option>
+            <option>Hospitality, events & catering</option>
+            <option>Property & real estate services</option>
+            <option>Custom / bespoke client projects</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Products (if any)</label>
+          <select class="form-input form-select" id="products" onchange="updateField('products', this.value)">
+            <option value="">Select product type...</option>
+            <option>No products — services only</option>
+            <option>Physical products (manufactured)</option>
+            <option>Physical products (resold / retail)</option>
+            <option>Vehicles & machinery</option>
+            <option>Digital products (downloads, templates)</option>
+            <option>SaaS / software subscriptions</option>
+            <option>Mobile app</option>
+            <option>Courses & educational content</option>
+            <option>Food & beverage products</option>
+            <option>Fashion & lifestyle products</option>
+            <option>Mix of products and services</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Existing Website</label>
+          <select class="form-input form-select" id="existingWebsite" onchange="updateField('existingWebsite', this.value)">
+            <option value="">Select current status...</option>
+            <option>No website yet — starting fresh</option>
+            <option>Yes — outdated, needs complete redesign</option>
+            <option>Yes — decent, needs refresh & new features</option>
+            <option>Yes — keeping design, migrating content</option>
+            <option>Only social media pages currently</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Key Competitors</label>
+          <select class="form-input form-select" id="competitors" onchange="updateField('competitors', this.value)">
+            <option value="">Select competitive landscape...</option>
+            <option>No direct competitors known</option>
+            <option>A few local competitors</option>
+            <option>Many local competitors — crowded market</option>
+            <option>Established national brands</option>
+            <option>Global / international market leaders</option>
+            <option>Online-only competitors (e-commerce, platforms)</option>
+            <option>Informal / unbranded competition</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Brand Positioning</label>
+          <select class="form-input form-select" id="brandPositioning" onchange="updateField('brandPositioning', this.value)">
+            <option value="">Select positioning...</option>
+            <option>Premium / luxury — top of the market</option>
+            <option>Trusted expert — established authority</option>
+            <option>Affordable value — accessible pricing</option>
+            <option>Innovative disruptor — modern challenger</option>
+            <option>Boutique / personal — close client relationships</option>
+            <option>Enterprise-grade — built for scale</option>
+            <option>Local favourite — community-rooted</option>
+            <option>Fast & reliable — speed of service</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Revenue Model</label>
+          <select class="form-input form-select" id="revenueModel" onchange="updateField('revenueModel', this.value)">
+            <option value="">Select model...</option>
+            <option>B2B Services / Project-based</option>
+            <option>SaaS / Subscription</option>
+            <option>E-Commerce / Transactional</option>
+            <option>Marketplace / Commission</option>
+            <option>Freemium to Paid</option>
+            <option>Advertising / Lead Gen</option>
+            <option>Licensing</option>
+            <option>Consulting / Retainer</option>
+            <option>Hybrid</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Project Type -->
+    <div class="step-panel" id="step-2">
+      <div class="step-header">
+        <div class="step-tag">Step 2 of 6</div>
+        <h1 class="step-title">Project Type</h1>
+        <p class="step-desc">Select the type of digital platform you need built. This shapes the entire architecture strategy.</p>
+      </div>
+      <div class="project-type-grid" id="projectTypeGrid">
+      </div>
+    </div>
+
+    <!-- Step 3: Business Goals -->
+    <div class="step-panel" id="step-3">
+      <div class="step-header">
+        <div class="step-tag">Step 3 of 6</div>
+        <h1 class="step-title">Business Goals</h1>
+        <p class="step-desc">Select all that apply. These goals drive the conversion architecture, UX strategy, and content hierarchy of your generated prompt.</p>
+      </div>
+      <div class="chip-grid" id="goalsGrid"></div>
+    </div>
+
+    <!-- Step 4: Features -->
+    <div class="step-panel" id="step-4">
+      <div class="step-header">
+        <div class="step-tag">Step 4 of 6</div>
+        <h1 class="step-title">Platform Features</h1>
+        <p class="step-desc">Select all features required. Each selection adds dedicated architecture, security, and implementation specifications to your prompt.</p>
+      </div>
+      <div class="chip-grid" id="featuresGrid"></div>
+    </div>
+
+    <!-- Step 5: Technical Preferences -->
+    <div class="step-panel" id="step-5">
+      <div class="step-header">
+        <div class="step-tag">Step 5 of 6</div>
+        <h1 class="step-title">Technical Preferences</h1>
+        <p class="step-desc">Choose your preferred technology stack, or let the system recommend the optimal enterprise architecture.</p>
+      </div>
+
+      <div class="recommend-card" id="recommendCard" onclick="toggleRecommended()">
+        <div class="recommend-check" id="recommendCheck">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-6" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <div class="recommend-title">Choose Best Enterprise Architecture</div>
+          <div class="recommend-desc">Let the AI select the optimal stack based on your business type, scale requirements, and compliance needs. Recommended for most users.</div>
+        </div>
+      </div>
+
+      <div class="tech-grid" id="techGrid">
+        <div class="form-group">
+          <label class="form-label">Frontend Framework</label>
+          <select class="form-input form-select" id="framework" onchange="updateField('framework', this.value)">
+            <option value="">Any / Recommended</option>
+            <option>Next.js (React)</option>
+            <option>React + Vite</option>
+            <option>Vue.js / Nuxt</option>
+            <option>SvelteKit</option>
+            <option>Astro</option>
+            <option>Angular</option>
+            <option>WordPress</option>
+            <option>Webflow</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Database</label>
+          <select class="form-input form-select" id="database" onchange="updateField('database', this.value)">
+            <option value="">Any / Recommended</option>
+            <option>PostgreSQL</option>
+            <option>MySQL</option>
+            <option>MongoDB</option>
+            <option>Supabase (PostgreSQL)</option>
+            <option>PlanetScale (MySQL)</option>
+            <option>Firebase</option>
+            <option>SQLite</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">CMS</label>
+          <select class="form-input form-select" id="cms" onchange="updateField('cms', this.value)">
+            <option value="">Any / Recommended</option>
+            <option>Sanity</option>
+            <option>Contentful</option>
+            <option>Strapi</option>
+            <option>Payload CMS</option>
+            <option>WordPress</option>
+            <option>Directus</option>
+            <option>Custom Admin</option>
+            <option>None</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hosting / Cloud</label>
+          <select class="form-input form-select" id="hosting" onchange="updateField('hosting', this.value)">
+            <option value="">Any / Recommended</option>
+            <option>Vercel</option>
+            <option>AWS</option>
+            <option>Google Cloud</option>
+            <option>Azure</option>
+            <option>Netlify</option>
+            <option>Railway</option>
+            <option>DigitalOcean</option>
+            <option>Self-hosted</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Analytics</label>
+          <select class="form-input form-select" id="analytics" onchange="updateField('analytics', this.value)">
+            <option value="">Any / Recommended</option>
+            <option>Google Analytics 4</option>
+            <option>Mixpanel</option>
+            <option>PostHog</option>
+            <option>Amplitude</option>
+            <option>Plausible</option>
+            <option>Fathom</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Authentication</label>
+          <select class="form-input form-select" id="authentication" onchange="updateField('authentication', this.value)">
+            <option value="">Any / Recommended</option>
+            <option>NextAuth / Auth.js</option>
+            <option>Supabase Auth</option>
+            <option>Clerk</option>
+            <option>Auth0</option>
+            <option>Firebase Auth</option>
+            <option>Custom JWT</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">File Storage</label>
+          <select class="form-input form-select" id="storage" onchange="updateField('storage', this.value)">
+            <option value="">Any / Recommended</option>
+            <option>AWS S3</option>
+            <option>Cloudflare R2</option>
+            <option>Supabase Storage</option>
+            <option>Vercel Blob</option>
+            <option>Firebase Storage</option>
+            <option>Cloudinary</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Target AI Platform</label>
+          <select class="form-input form-select" id="aiPlatform" onchange="updateField('targetPlatform', this.value)">
+            <option value="Claude Code">Claude Code</option>
+            <option value="Lovable">Lovable</option>
+            <option value="Bolt">Bolt (StackBlitz)</option>
+            <option value="v0">v0 (Vercel)</option>
+            <option value="Framer">Framer</option>
+            <option value="Webflow">Webflow</option>
+            <option value="Cursor">Cursor</option>
+            <option value="Replit">Replit</option>
+            <option value="OpenAI Codex">OpenAI Codex</option>
+            <option value="Universal">Universal (All Platforms)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 6: Compliance -->
+    <div class="step-panel" id="step-6">
+      <div class="step-header">
+        <div class="step-tag">Step 6 of 6</div>
+        <h1 class="step-title">Compliance & Standards</h1>
+        <p class="step-desc">Select all applicable compliance requirements. Each selection generates dedicated compliance architecture within your prompt.</p>
+      </div>
+      <div class="chip-grid" id="complianceGrid"></div>
+
+      <div class="form-group" style="margin-top:2rem">
+        <label class="form-label">Additional Requirements or Context</label>
+        <textarea class="form-input form-textarea" id="additionalContext" placeholder="Any specific requirements, constraints, integrations, or context that should influence the generated prompt..." oninput="updateField('additionalContext', this.value)" style="height:100px"></textarea>
+      </div>
+    </div>
+
+    <!-- Step 7: Results -->
+    <div class="step-panel" id="step-7">
+      <!-- Loading state -->
+      <div id="loadingState" class="loading-state">
+        <div class="loading-orb"></div>
+        <div class="loading-title">Architecting Your Enterprise Specification</div>
+        <div class="loading-status" id="loadingStatus">Analysing business requirements...</div>
+        <div class="loading-progress">
+          <div class="loading-bar" id="loadingBar"></div>
+        </div>
+        <div class="loading-steps" id="loadingSteps"></div>
+      </div>
+
+      <!-- Results state -->
+      <div id="resultsState" class="results-state" style="display:none">
+
+        <!-- Score Dashboard -->
+        <div class="scores-section">
+          <div class="scores-header">
+            <div>
+              <h2 class="scores-title">Enterprise Readiness Scores</h2>
+              <p class="scores-sub">All scores auto-improved to enterprise standard before output</p>
+            </div>
+            <div class="overall-score" id="overallScore"></div>
+          </div>
+          <div class="scores-grid" id="scoresGrid"></div>
+        </div>
+
+        <!-- CTO Findings (only in CTO mode) -->
+        <div class="cto-findings" id="ctoFindings" style="display:none">
+          <div class="cto-findings-header">
+            <div class="cto-badge">CTO MODE</div>
+            <h3>Critical Findings & Assumptions Challenged</h3>
+          </div>
+          <div id="ctoFindingsList"></div>
+        </div>
+
+        <!-- Output Tabs -->
+        <div class="output-section">
+          <div class="output-tabs">
+            <button class="tab-btn active" onclick="setTab('build')" id="tab-build">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 3h12M2 8h8M2 13h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              Build Prompt
+            </button>
+            <button class="tab-btn" onclick="setTab('cto')" id="tab-cto">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v4M8 11v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              CTO Audit Prompt
+            </button>
+            <button class="tab-btn" onclick="setTab('sales')" id="tab-sales">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 13V8l5-5 5 5v5H3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><rect x="6" y="10" width="4" height="3" stroke="currentColor" stroke-width="1.5"/></svg>
+              Client Sales Brief
+            </button>
+          </div>
+
+          <div class="output-toolbar">
+            <div class="output-meta" id="outputMeta"></div>
+            <div class="toolbar-actions">
+              <button class="tool-btn" onclick="toggleCompact(this)" id="compactBtn" title="Same build outcome with ~40% fewer tokens — saves API cost and fits tighter context limits">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 4h10M4 7h6M5.5 10h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Compact: <span class="tg-state">On</span>
+              </button>
+              <button class="tool-btn" onclick="togglePromptOpt('offerOptions', this)" id="optOffer" title="Adds an instruction telling the AI builder to first show you 2-3 hero design options and let you pick — before it builds the full site.">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1.5" y="2.8" width="4.7" height="8.4" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="7.8" y="2.8" width="4.7" height="8.4" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+                Design options: <span class="tg-state">On</span>
+              </button>
+              <button class="tool-btn" onclick="togglePromptOpt('budgetMode', this)" id="optBudget" title="Adds guidance for free/limited plans: build a complete one-page version first so it never runs out of credits halfway.">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M7 4v6M5.4 5.2a1.6 1.6 0 011.6-1 1.4 1.4 0 01.2 2.7l-.6.2a1.4 1.4 0 00.2 2.7 1.6 1.6 0 001.6-1" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
+                Budget mode: <span class="tg-state">On</span>
+              </button>
+              <button class="tool-btn" onclick="downloadOutput()" title="Download as .txt">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 6l3 3 3-3M2 11h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Download
+              </button>
+              <button class="tool-btn copy-btn" onclick="copyOutput(this)" id="copyBtn">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="4" y="4" width="8" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M2 10V2h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Copy Prompt
+              </button>
+            </div>
+          </div>
+
+          <div class="output-content" id="outputContent"></div>
+        </div>
+
+        <!-- Audit Checklist -->
+        <div class="audit-section" id="auditSection">
+          <div class="audit-header">
+            <h3 class="audit-title">Enterprise Audit Checklist</h3>
+            <p class="audit-sub">Second-pass QA — verify before shipping to production</p>
+          </div>
+          <div class="audit-grid" id="auditGrid"></div>
+        </div>
+
+        <!-- Build Section injected here by build.js -->
+        <div id="buildSection"></div>
+
+        <div class="results-footer">
+          <button class="btn-secondary" onclick="goToStep(1)">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Start Over
+          </button>
+          <button class="btn-secondary" onclick="goToStep(6)">Edit Inputs</button>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer Nav -->
+  <div class="footer-nav" id="footerNav">
+    <div class="footer-nav-inner">
+      <button class="btn-secondary" id="backBtn" onclick="prevStep()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Back
+      </button>
+      <div class="step-dots" id="stepDots"></div>
+      <button class="btn-primary" id="nextBtn" onclick="nextStep()">
+        Continue
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+<script src="data.js?v=4"></script>
+<script src="prompt-engine.js?v=6"></script>
+<script src="scoring.js?v=3"></script>
+<script src="intelligence.js?v=3"></script>
+<script src="glossary.js?v=2"></script>
+<script src="pairings.js?v=3"></script>
+<script src="build.js?v=5"></script>
+<script src="app.js?v=6"></script>
+<script src="guide.js?v=1"></script>
+</body>
+</html>

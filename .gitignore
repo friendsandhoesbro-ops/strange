@@ -1,0 +1,11 @@
+# Runtime artifacts — never deployed, never committed
+generated-sites/
+learning.json
+*.log
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+node_modules/
