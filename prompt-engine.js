@@ -100,6 +100,32 @@ order above (complete core first) still applies so nothing is ever left broken.`
     return blocks.map((b, i) => blocks.length > 1 ? `STEP ${i + 1} — ${b}` : b).join('\n\n');
   }
 
+  // Build-safety contract: stops the #1 generated-site failure — "Module not found"
+  // from importing a package the builder never installed. Always emitted.
+  _buildSafety() {
+    return (
+`DEPENDENCIES & BUILD INTEGRITY — PREVENT "MODULE NOT FOUND"
+This spec names third-party packages (animation, icons, UI). A build breaks the moment you
+import a package that isn't installed. So:
+• Install EVERY package you import (add it to package.json + run the install) BEFORE you
+  import it. Never leave an unresolved import — that is the most common reason these builds
+  fail to compile.
+• ANIMATION LIBRARY — read carefully: "Framer Motion", the npm package "motion"
+  (import { motion } from 'motion/react'), and "framer-motion"
+  (import { motion } from 'framer-motion') are the SAME library under different names.
+  Pick ONE, install exactly that one, and import from exactly that path. Do not mix both,
+  and do not import one while installing the other.
+• Icons are lucide-react; install it before importing any icon.
+• If a package can't be installed, isn't available on this builder, or would risk leaving
+  the build half-broken, DO NOT ship a broken import — replace it with a zero-dependency
+  equivalent that gives the same result: CSS keyframes/transitions instead of a motion lib,
+  IntersectionObserver for scroll reveals, inline SVG instead of an icon/shape package,
+  native <video>/CSS instead of a WebGL/shader package. The design must never depend on a
+  package that isn't actually present.
+• After each phase, confirm the project COMPILES with zero unresolved imports and no console
+  errors before continuing. A site that doesn't compile is worth nothing, however good the design.`);
+  }
+
   // ══════════════════════════════════════════════════════════════════════════
   _buildPrompt() {
     const d = this.d;
@@ -130,6 +156,10 @@ order above (complete core first) still applies so nothing is ever left broken.`
       h1('HOW TO BUILD THIS — READ FIRST');
       lines.push(protocol);
     }
+
+    // ── BUILD SAFETY (always on — prevents missing-dependency compile errors) ─
+    h1('BUILD SAFETY — DEPENDENCIES & COMPILE INTEGRITY');
+    lines.push(this._buildSafety());
 
     // ── EXECUTIVE MANDATE ─────────────────────────────────────────────────
     h1('EXECUTIVE MANDATE');
@@ -1039,8 +1069,8 @@ ANTI-PATTERNS (instant template-energy — never do these)
       `Styling     : Tailwind CSS + shadcn/ui component library\n` +
       `State       : Zustand (global) + React Query / TanStack Query (server state)\n` +
       `Forms       : React Hook Form + Zod validation\n` +
-      `Icons       : Lucide React\n` +
-      `Animations  : Framer Motion (purposeful, not decorative)\n\n` +
+      `Icons       : Lucide React (install lucide-react before importing icons)\n` +
+      `Animations  : Framer Motion — the "motion" package (import { motion } from 'motion/react') OR legacy "framer-motion"; same library, install whichever you use, never both. Purposeful, not decorative; CSS transitions are fine for simple cases.\n\n` +
       `BACKEND\n` +
       `Runtime     : Node.js (via Next.js API routes or separate Express/Fastify)\n` +
       `Database    : ${this.db}\n` +

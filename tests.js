@@ -69,6 +69,16 @@
     const none = new PromptEngine(bizB2B, { offerOptions: false, budgetMode: false }).generateAll().build;
     nothas(none, 'HOW TO BUILD THIS — READ FIRST');
   });
+  test('build safety: dependency directive is ALWAYS present (even with protocol off)', () => {
+    const none = new PromptEngine(bizB2B, { offerOptions: false, budgetMode: false }).generateAll().build;
+    has(none, 'BUILD SAFETY');
+    has(none, 'MODULE NOT FOUND');
+    has(none, 'Install EVERY package you import');
+  });
+  test('build safety: reconciles framer-motion and motion/react as one library', () => {
+    const b = new PromptEngine(bizB2B).generateAll().build;
+    has(b, 'motion/react'); has(b, 'framer-motion'); has(b, 'same library');
+  });
   test('new project types exist and label correctly', () => {
     assert(PROJECT_TYPES.some(p => p.id === 'portfolio'), 'portfolio');
     assert(PROJECT_TYPES.some(p => p.id === 'landing-page'), 'landing');
