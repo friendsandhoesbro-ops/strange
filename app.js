@@ -15,7 +15,7 @@ const state = {
     framework: '', database: '', cms: '', hosting: '',
     analytics: '', authentication: '', storage: '',
     useRecommended: true,
-    targetPlatform: 'Claude Code',
+    targetPlatform: 'Universal',
     visualStyle: 'auto',        // 'auto' (varies) or a named style from the library
     includeCMS: true,           // per-project: include a beginner CMS/admin
     compliance: [],

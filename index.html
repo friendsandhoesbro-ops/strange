@@ -342,7 +342,8 @@
           <select class="form-input form-select" id="visualStyle" onchange="updateField('visualStyle', this.value)">
             <option value="auto">Auto — pick a fresh, unique style for me (recommended)</option>
           </select>
-          <div class="char-count">Auto varies the design so your site doesn’t look like everyone else’s. Or pick a specific style from our library.</div>
+          <div id="styleGallery" class="style-gallery" role="radiogroup" aria-label="Visual style"></div>
+          <div class="char-count">Tap a style to preview the look. “Auto” varies the design so your site doesn’t look like everyone else’s.</div>
         </div>
         <div class="form-group full-width">
           <label class="form-label">Content manager — so you can edit text, images &amp; video yourself</label>
@@ -464,17 +465,18 @@
         <div class="form-group">
           <label class="form-label">Target AI Platform</label>
           <select class="form-input form-select" id="aiPlatform" onchange="updateField('targetPlatform', this.value)">
-            <option value="Claude Code">Claude Code</option>
+            <option value="Universal" selected>Any AI builder — works everywhere (recommended)</option>
             <option value="Lovable">Lovable</option>
             <option value="Bolt">Bolt (StackBlitz)</option>
             <option value="v0">v0 (Vercel)</option>
+            <option value="Cursor">Cursor</option>
+            <option value="Claude Code">Claude Code</option>
+            <option value="OpenAI Codex">OpenAI Codex / ChatGPT</option>
+            <option value="Replit">Replit</option>
             <option value="Framer">Framer</option>
             <option value="Webflow">Webflow</option>
-            <option value="Cursor">Cursor</option>
-            <option value="Replit">Replit</option>
-            <option value="OpenAI Codex">OpenAI Codex</option>
-            <option value="Universal">Universal (All Platforms)</option>
           </select>
+          <div class="char-count">Leave on “Any AI builder” to keep your prompt portable — paste it into any tool. Or pick your builder to add tuned, builder-specific rules.</div>
         </div>
       </div>
     </div>
@@ -624,18 +626,19 @@
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js"></script>
 <script src="bg.js?v=2"></script>
 <script src="config.js?v=2"></script>
-<script src="data.js?v=4"></script>
+<script src="data.js?v=5"></script>
 <script src="style-library.js?v=10"></script>
-<script src="prompt-engine.js?v=10"></script>
+<script src="prompt-engine.js?v=11"></script>
 <script src="scoring.js?v=3"></script>
 <script src="intelligence.js?v=4"></script>
 <script src="glossary.js?v=2"></script>
 <script src="pairings.js?v=4"></script>
 <script src="build.js?v=6"></script>
-<script src="app.js?v=7"></script>
+<script src="app.js?v=8"></script>
 <script src="guide.js?v=1"></script>
 <script src="splash.js?v=1"></script>
 <script src="reveal.js?v=1"></script>
 <script src="aurora.js?v=1"></script>
+<script src="style-gallery.js?v=1"></script>
 </body>
 </html>

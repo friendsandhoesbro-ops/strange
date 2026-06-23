@@ -16,7 +16,7 @@ class PromptEngine {
     this.cms   = data.useRecommended ? this.rec.cms       : (data.cms          || this.rec.cms);
     this.store = data.useRecommended ? this.rec.storage   : (data.storage      || this.rec.storage);
     this.ana   = data.analytics || 'Google Analytics 4 + Google Search Console';
-    this.platform = data.targetPlatform || 'Claude Code';
+    this.platform = data.targetPlatform || 'Universal';
     // Pull a distinct visual style from the library (auto-varies, or honours a named pick).
     this.style = (typeof StyleLibrary !== 'undefined') ? StyleLibrary.resolve(data) : null;
     // CMS / admin is asked per project; default to included for beginner-friendliness.
@@ -213,7 +213,7 @@ CONSENT & QUALITY:
     lines.push(`Project : ${this._projectLabel()}`);
     lines.push(`Client  : ${d.businessName || 'Client'}`);
     lines.push(`Industry: ${d.industry || 'Not specified'}`);
-    lines.push(`Platform: ${this.platform}`);
+    lines.push(`Platform: ${this.platform === 'Universal' ? 'Any AI builder (Bolt · Lovable · v0 · Cursor · Claude Code · ChatGPT · Replit · Framer · Webflow …)' : this.platform}`);
     lines.push(`Stack   : ${this.stack}`);
     lines.push(`Generated: ${new Date().toLocaleDateString('en-GB', { day:'2-digit', month:'long', year:'numeric' })}`);
     lines.push(`${'═'.repeat(70)}`);

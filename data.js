@@ -82,7 +82,7 @@ const PLATFORM_PREFIXES = {
   'Replit':        'You are building in Replit. Use Node.js + Express backend with React frontend (Vite). Use Drizzle ORM with PostgreSQL. Structure for easy Replit deployment. Keep dependencies minimal and environment setup simple.\n\n',
   'OpenAI Codex':  'Build this application following these precise technical specifications. Implement all features as described, using industry-standard patterns and modern best practices.\n\n',
   'Claude Code':   'You are my Staff Engineer. Build this production application following the complete specification below. Use Next.js 15 + TypeScript + Tailwind CSS + shadcn/ui. Structure the codebase for long-term maintainability.\n\n',
-  'Universal':     '',
+  'Universal':     'Build this in ANY AI website builder or coding tool (Bolt, Lovable, v0, Cursor, Replit, Framer, Webflow, Claude Code, ChatGPT, and others). This prompt is builder-agnostic: the strategy, page structure, design system, content, and conversion rules below are what matter and apply everywhere. The technology stack named later is a RECOMMENDED DEFAULT, not a requirement — if your builder needs a different stack (e.g. Vite instead of Next.js, or a no-code builder\'s native components/CMS), use the closest equivalent it supports. Never fail because a specific library or framework is unavailable — substitute the nearest option and keep going.\n\n',
 };
 
 // ── LOADING SEQUENCE ───────────────────────────────────────────────────────
