@@ -126,6 +126,78 @@ import a package that isn't installed. So:
   errors before continuing. A site that doesn't compile is worth nothing, however good the design.`);
   }
 
+  // Completeness contract — graded as a finished product, not a scaffold.
+  // (Distilled from the "full output enforcement" discipline: no placeholders, no stubs.)
+  _completenessContract() {
+    const name = this.d.businessName || 'the brand';
+    return (
+`This build is graded as a FINISHED PRODUCT, not a scaffold or a demo. The following are
+forbidden in what you deliver — each one is an instant fail:
+✕ Lorem ipsum, "Sample text", "Your headline here", or any placeholder copy. Write real,
+  specific content drawn from ${name}'s actual world (services, prices, voice, locale).
+✕ Placeholder links (href="#"), dead buttons, no-op handlers, or forms that don't validate
+  and submit. Every interactive element must actually DO its job.
+✕ Stub comments standing in for real work: "// TODO", "// implement later",
+  "/* rest of code */", "// ...", "// add more here". Write the actual implementation.
+✕ Broken or empty-grey images. Every <img> has a real or AI-generated source, explicit
+  width/height, and descriptive alt text — never a missing asset.
+✕ "Coming soon" placards in place of content this spec actually asked for.
+• If the work is long, KEEP GOING until each file is complete. Do not truncate, summarise,
+  or hand back a partial file with "continue from here" — finish the file, then move on.
+• Wire real (or realistic seed) data through lists, cards, tables and detail pages so the
+  site looks alive, not like an empty template.
+• Every navigation link resolves to a real section or page; menus open and close; the cart /
+  form / search actually works. A page that looks done but does nothing is not done.`);
+  }
+
+  // Analytics & event-tracking plan — instrument the funnel so the owner can see what
+  // converts. (Distilled from product-analytics tracking-plan practice.) Events are derived
+  // from the project type + the chosen business goals so the plan fits THIS business.
+  _analyticsPlan() {
+    const type = this.d.projectType;
+    const goals = this.d.goals || this.d.businessGoals || [];
+    const ana = this.ana || 'GA4 + a product-analytics tool (e.g. PostHog)';
+
+    const events = ['page_view', 'cta_click', 'nav_click', 'scroll_depth_75', 'outbound_click'];
+    const byType = {
+      ecommerce:        ['view_item', 'add_to_cart', 'begin_checkout', 'add_payment_info', 'purchase'],
+      'company-website':['lead_form_open', 'lead_form_submit', 'call_click', 'email_click'],
+      portfolio:        ['project_view', 'contact_open', 'contact_submit', 'resume_download'],
+      'landing-page':   ['hero_cta_click', 'signup_start', 'signup_complete'],
+    };
+    (byType[type] || ['lead_form_open', 'lead_form_submit', 'call_click']).forEach(e => events.push(e));
+    const goalText = goals.join(' ').toLowerCase();
+    if (/booking|appointment|schedul/.test(goalText)) events.push('booking_started', 'booking_confirmed');
+    if (/subscription|retention|recurring/.test(goalText)) events.push('plan_selected', 'subscribe_complete');
+    if (/newsletter|email|lead/.test(goalText)) events.push('newsletter_signup');
+    const unique = events.filter((e, i) => events.indexOf(e) === i);
+
+    return (
+`Don't just "install analytics" and track pageviews — instrument the conversion funnel so
+${this.d.businessName || 'the owner'} can see what actually drives revenue.
+
+PROVIDER: ${ana}. Load it deferred/async; never block first paint.
+
+EVENTS TO INSTRUMENT (object_action, snake_case, fired client-side at the moment of action):
+${unique.map(e => '• ' + e).join('\n')}
+
+EACH EVENT CARRIES PROPERTIES: page path + title, section/component, CTA label, device type,
+referrer/source; and where relevant value + currency, item_id/name, plan, form_name.
+
+IDENTITY & FUNNEL:
+• Assign an anonymous visitor id on first load; on signup/login attach a stable user id so a
+  visitor's sessions stitch into one journey.
+• Track the WHOLE funnel — view → intent (cta_click) → start (form_open / begin_checkout) →
+  complete (submit / purchase). The DROP-OFF between steps is the insight, so never skip a step.
+• Mark the primary conversion (the main CTA's completion) as the headline KPI in the dashboard.
+
+CONSENT & QUALITY:
+• Fire analytics/marketing events ONLY after cookie consent is granted (see Compliance);
+  strictly-necessary measurement may run without consent where local law allows.
+• Before launch, verify in staging that every event fires exactly once with the correct
+  properties — no duplicates, no missing conversion events on the thank-you/confirmation step.`);
+  }
+
   // ══════════════════════════════════════════════════════════════════════════
   _buildPrompt() {
     const d = this.d;
@@ -160,6 +232,10 @@ import a package that isn't installed. So:
     // ── BUILD SAFETY (always on — prevents missing-dependency compile errors) ─
     h1('BUILD SAFETY — DEPENDENCIES & COMPILE INTEGRITY');
     lines.push(this._buildSafety());
+
+    // ── COMPLETENESS CONTRACT (always on — bans placeholders / half-built work) ─
+    h1('REAL CONTENT & COMPLETENESS — SHIP NOTHING HALF-DONE');
+    lines.push(this._completenessContract());
 
     // ── EXECUTIVE MANDATE ─────────────────────────────────────────────────
     h1('EXECUTIVE MANDATE');
@@ -231,6 +307,10 @@ import a package that isn't installed. So:
     // ── SEO ARCHITECTURE ──────────────────────────────────────────────────
     h1('SEO ARCHITECTURE');
     lines.push(this._seoStrategy());
+
+    // ── ANALYTICS & EVENT TRACKING (instrument the funnel, not just pageviews) ─
+    h1('ANALYTICS & EVENT TRACKING');
+    lines.push(this._analyticsPlan());
 
     // ── TECHNICAL STACK ───────────────────────────────────────────────────
     h1('TECHNICAL STACK');
@@ -969,7 +1049,44 @@ ANTI-PATTERNS (instant template-energy — never do these)
 ✕ Carousel/slider heroes; auto-playing anything with sound
 ✕ More than two font families, more than one accent colour
 ✕ AOS-style bounce/zoom entrance animations — movement must be subtle and physical
-✕ Identical padding on every section — rhythm requires variation`;
+✕ Identical padding on every section — rhythm requires variation
+
+AVOID THE AI-DEFAULT LOOKS (these read as machine-generated regardless of the subject)
+AI design currently clusters around three looks. Unless the chosen visual style or brief
+explicitly asks for one, do NOT land on any of them:
+✕ Warm cream (~#F4F1EA) background + high-contrast serif display + a terracotta accent
+✕ Near-black background + a single acid-green / vermilion accent
+✕ Broadsheet layout — hairline rules, zero border-radius, dense newspaper columns
+Where an axis is left free, spend that freedom on a choice specific to ${name}'s own world —
+its materials, vocabulary, and artifacts — not on one of these defaults. Self-test per section:
+"would I produce this exact look for almost any other brief?" If yes, change it.
+
+STRUCTURE IS INFORMATION (devices must encode meaning, not decorate)
+• Numbered markers (01 / 02 / 03), eyebrows, dividers and labels are only justified when they
+  encode something true — use 01/02/03 ONLY when the content is genuinely a sequence (a real
+  process, a timeline). Otherwise drop them; decorative numbering is a tell.
+• Spend boldness in ONE place: let the signature moment be the memorable thing and keep
+  everything around it quiet and disciplined. Before shipping a section, remove one decorative
+  element that does not serve the brief (the "take one accessory off" rule).
+
+EDITORIAL TYPE & COMPOSITION VARIETY
+• Set display copy at a wide, confident measure — never let a headline wrap into 5-6 thin
+  lines; tighten max-width or size so it reads as one editorial statement.
+• Do NOT default every section to left-text / right-image. Vary composition across the page
+  (full-bleed, centered, asymmetric, image-led, type-led) and vary hero/section scale
+  (giant / mid / minimal) so scrolling never feels like one repeated template row.
+• Give the page an AIDA spine: Attention (hero) → Interest (what/proof) → Desire
+  (outcomes & benefits) → Action (CTA). Every section should move the reader one step on.
+
+INTERFACE COPY (words are design material — write them with the care of spacing)
+• Real copy only — never lorem ipsum. Write specific, plain-spoken words from ${name}'s world.
+• Active voice on every control; the button says exactly what happens ("Save changes", not
+  "Submit"), and an action keeps its name through the flow (a "Publish" button → a "Published"
+  toast).
+• Name things by what the user controls, not how it's built ("Notifications", not "Webhook
+  config"). Be specific rather than clever.
+• Errors explain what went wrong and how to fix it — never vague, never apologetic. An empty
+  state is an invitation to act, never a blank panel.`;
   }
 
   _pageSpecs() {

@@ -79,6 +79,25 @@
     const b = new PromptEngine(bizB2B).generateAll().build;
     has(b, 'motion/react'); has(b, 'framer-motion'); has(b, 'same library');
   });
+  test('completeness contract: bans placeholders, demands real content', () => {
+    const b = new PromptEngine(bizB2B).generateAll().build;
+    has(b, 'REAL CONTENT & COMPLETENESS');
+    has(b, 'Lorem ipsum'); has(b, 'href="#"'); has(b, '// TODO');
+  });
+  test('analytics plan: instruments the funnel with snake_case events', () => {
+    const b = new PromptEngine(bizB2B).generateAll().build;
+    has(b, 'ANALYTICS & EVENT TRACKING'); has(b, 'cta_click');
+  });
+  test('analytics events adapt to project type (ecommerce vs lead-gen)', () => {
+    const ecom = new PromptEngine({ businessName: 'Shop', projectType: 'ecommerce', businessGoals: ['E-Commerce Sales'] }).generateAll().build;
+    has(ecom, 'add_to_cart'); has(ecom, 'purchase');
+    has(new PromptEngine(bizB2B).generateAll().build, 'lead_form_submit'); // company-website
+  });
+  test('design upgrades: AI-default-look avoidance + interface copy', () => {
+    const b = new PromptEngine(bizB2B).generateAll().build;
+    has(b, 'AVOID THE AI-DEFAULT LOOKS'); has(b, 'terracotta');
+    has(b, 'INTERFACE COPY'); has(b, 'Save changes');
+  });
   test('new project types exist and label correctly', () => {
     assert(PROJECT_TYPES.some(p => p.id === 'portfolio'), 'portfolio');
     assert(PROJECT_TYPES.some(p => p.id === 'landing-page'), 'landing');
