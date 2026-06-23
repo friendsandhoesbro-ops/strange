@@ -279,6 +279,39 @@ const STYLE_LIBRARY = [
     ],
     source: 'user-prompt',
   },
+  {
+    id: 'serene-wellness-glass',
+    name: 'Serene Wellness Glass',
+    category: 'hero',
+    aesthetics: ['premium', 'minimal', 'modern', 'clean', 'editorial', 'warm', 'approachable', 'glassmorphism', 'cinematic', 'trust'],
+    industries: ['wellness', 'health', 'mental-health', 'therapy', 'mindfulness', 'meditation', 'lifestyle', 'beauty', 'ai', 'tech', 'startup', 'spa', 'healthcare', 'nutrition', 'fitness', 'coaching'],
+    fonts: "Askan Light (loaded from onlinewebfonts) — a delicate serif used for the BRAND and ALL display headings (not just accent words). Inter (Google Fonts, 300–600) for body and UI. Exposed as Tailwind theme vars font-askan and font-inter.",
+    dna: {
+      mood: 'Calm, breathing, restorative — a wellness companion that feels like a friend rather than a product. Bright, ambient video imagery shows through dark-tinted frosted glass; the design trusts the footage to carry mood and never imposes a heavy overlay. Soft confidence — premium without coldness.',
+      typography: 'Askan Light serif is the BRAND voice — used at scale for the display headline (clamp-style fluid sizing 2rem mobile → 5.5rem desktop, leading 1.05, tracking-tight, max-w ~700px) AND for the small logo wordmark. Inter 300–600 carries everything else: 14–18px body at /70 opacity, 12px feature pills. One serif against one grotesque — restraint reads as care.',
+      color: 'No brand colour and no dark overlay. White text (text-white at 100% / 70% / muted) sits directly on the ambient video. All UI chrome is BLACK-tinted glass (bg-black/20 → bg-black/30) with backdrop-blur-md / backdrop-blur-xl and hairline border-white/10. One bright-white pill CTA (bg-white text-gray-900) provides the only colour break — every other surface is translucent. The video is the entire palette.',
+      layout: 'A single full-viewport hero — no scroll. Content layers absolute inset-0 z-10 in a flex column with px-4→12 / py-4→8 padding. Top: glass nav pill (logo + brand + hamburger) on the left, white "Join the list" pill on the right. Bottom: a two-column row (sm:flex-row, items-end, pb-12→16) — left column holds the headline, subtitle, and inline-pill email form; right column stacks feature pills self-end. On mobile the layout collapses to one column with a flex-1 spacer pushing content to the bottom and feature pills wrapping under the form.',
+      motion: 'Quiet on purpose. Background video autoplays muted+looped as ambient atmosphere — no scrubbing, no parallax. The mobile hamburger toggles a glass overlay panel. Buttons are simple hover-states (no scale choreography needed). The motion is the FOOTAGE, not the UI — the wellness mood would break if the chrome animated.',
+      imagery: 'One bright, peaceful, slow-moving wellness video fills the entire viewport (water, light, nature, breath, soft skin) with a 3-tier responsive focal point — object-position 80% center on mobile, right center on tablet, center on desktop — so the subject stays composed beside the content column at every width. NO photos in UI. The custom 4-petal pinwheel SVG (a calm radial mark) is the only graphic.',
+      signature: 'Black-tinted glass UI floating directly on a bright wellness video with NO dark overlay + the Askan Light serif headline at full display scale + the inline-pill email capture sitting on its own glass surface + the 3-breakpoint object-position shift that keeps the video subject in frame from mobile to desktop + the custom 4-petal pinwheel SVG mark.',
+    },
+    techniques: [
+      'Black-tint glass UI system: every surface uses bg-black/20 or bg-black/30 + backdrop-blur-md (chrome, nav, form) or backdrop-blur-xl (modal/menu overlay) with a 1px border-white/10. NO dark gradient overlay on the video — the glass alone carries the contrast. This is the inverse of the white-tint glass used by Liquid Glass Nature / Glassmorphism Fintech and gives a totally different surface.',
+      'Responsive video focal point: a single full-viewport autoPlay muted loop playsInline video with object-cover and three object-position values applied by breakpoint — 80% center (mobile, default), right center (md), center center (lg) — so the on-screen subject stays balanced beside the content column at every width.',
+      'Single-viewport bottom-anchored hero: absolute inset-0 z-10 flex-col content; on mobile a flex-1 spacer pushes the content to the bottom; on sm+ a sm:flex-row row aligns items-end so headline/form/feature-pills all bottom-align. No scroll-down — the entire site IS this hero.',
+      'Inline-pill email capture on glass: a single rounded-full bg-black/30 backdrop-blur-md border-white/10 container holds a transparent input AND an absolute right-1.5 white pill submit button — the form reads as one continuous surface, not as input+button. Placeholder is the only label.',
+      'Askan Light serif as the BRAND voice: the same delicate serif is used at small size (logo wordmark, ~16–20px tracking-wide) AND at display scale (headline, fluid 2rem→5.5rem, leading 1.05, tracking-tight). No grotesque substitute on headlines — the serif carries the entire wellness mood; pair with Inter 300–600 for body/UI only.',
+      'Custom 4-petal pinwheel SVG mark: a calm radial logo on a 256×256 viewBox with fill:currentColor (a path forming four interlocked quarter-circles). Mark scales 5–7×5–7 inside the nav pill; the same shape can be re-used as a section divider or watermark at low opacity.',
+      'Glass mobile menu panel: a sm:hidden absolute panel pinned below the nav pill (top-[4.5rem], left-4, right-4, rounded-2xl, bg-black/30 backdrop-blur-xl border-white/10, p-5) — collapses gracefully on desktop where the right "Join the list" pill is shown instead.',
+      'No-overlay discipline: skip the easy dark <div> over the video. Choose footage that already reads cleanly behind white text (bright but balanced, sky/light/skin/water tones at controlled exposure) and let the glass UI do the contrast work. If a future hero needs darker footage, REINTRODUCE a faint gradient at the bottom rather than tinting the whole video.',
+    ],
+    imagePrompts: [
+      'slow ambient wellness video — soft daylight on water, a hand brushing fabric, or a calm sky timelapse — gentle continuous motion, bright but balanced exposure that reads cleanly behind white text without any overlay, premium loopable background for a single-viewport hero',
+      'cinematic close-up of breath / light / steam / morning sun on skin — soft focus, warm muted palette, minimal contrast spikes, designed for a full-screen hero with no dark overlay',
+      'calm nature timelapse — clouds drifting, water rippling, leaves moving — slow enough to feel meditative, bright midday lighting, composition leaves the right two-thirds of the frame uncluttered so glass UI can sit over it',
+    ],
+    source: 'user-prompt',
+  },
 ];
 
 // ── Query / selection helpers ─────────────────────────────────────────────────

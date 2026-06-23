@@ -3,6 +3,9 @@ generated-sites/
 learning.json
 *.log
 
+# Private access-code generator — MUST stay local; never deploy (it shows live codes)
+code-generator.html
+
 # OS / editor noise
 .DS_Store
 Thumbs.db
