@@ -77,29 +77,29 @@
   if (!window.crypto || !crypto.subtle) { return; }
 
   // ── Lock UI (self-contained styles; works even before <body> parses) ─────────
-  var GREEN = '#5ed29c', BG = '#070b0a';
+  var GREEN = '#8b5cf6', BG = '#07080d';
   var style = document.createElement('style');
   style.textContent =
-    '#epaGate{position:fixed;inset:0;z-index:2147483647;background:radial-gradient(1200px 600px at 50% -10%,rgba(94,210,156,.10),transparent 60%),' + BG + ';' +
+    '#epaGate{position:fixed;inset:0;z-index:2147483647;background:radial-gradient(1200px 600px at 50% -10%,rgba(139,92,246,.10),transparent 60%),' + BG + ';' +
     'display:flex;align-items:center;justify-content:center;font-family:Inter,system-ui,-apple-system,sans-serif;color:#e7f3ee;padding:24px;}' +
     '#epaGate *{box-sizing:border-box;}' +
     '.epa-card{width:100%;max-width:380px;background:rgba(12,18,16,.72);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);' +
-    'border:1px solid rgba(94,210,156,.18);border-radius:20px;padding:30px 26px;box-shadow:0 30px 80px rgba(0,0,0,.55);text-align:center;}' +
-    '.epa-mark{width:42px;height:42px;border-radius:12px;margin:0 auto 16px;display:grid;place-items:center;background:linear-gradient(120deg,#5ed29c,#34d8c4);}' +
+    'border:1px solid rgba(139,92,246,.18);border-radius:20px;padding:30px 26px;box-shadow:0 30px 80px rgba(0,0,0,.55);text-align:center;}' +
+    '.epa-mark{width:42px;height:42px;border-radius:12px;margin:0 auto 16px;display:grid;place-items:center;background:linear-gradient(120deg,#8b5cf6,#2dd4bf);}' +
     '.epa-title{font-weight:800;font-size:19px;letter-spacing:-.01em;margin:0 0 6px;}' +
     '.epa-sub{font-size:12.5px;line-height:1.5;color:#8aa39a;margin:0 0 20px;}' +
     '.epa-input{width:100%;text-align:center;font-size:30px;font-weight:700;letter-spacing:.42em;text-indent:.42em;font-family:"JetBrains Mono",ui-monospace,monospace;' +
-    'background:#0a110e;border:1.5px solid rgba(94,210,156,.22);border-radius:12px;color:#fff;padding:14px 10px;outline:none;transition:border-color .15s,box-shadow .15s;}' +
-    '.epa-input:focus{border-color:' + GREEN + ';box-shadow:0 0 0 3px rgba(94,210,156,.16);}' +
+    'background:#0a110e;border:1.5px solid rgba(139,92,246,.22);border-radius:12px;color:#fff;padding:14px 10px;outline:none;transition:border-color .15s,box-shadow .15s;}' +
+    '.epa-input:focus{border-color:' + GREEN + ';box-shadow:0 0 0 3px rgba(139,92,246,.16);}' +
     '.epa-input.epa-bad{border-color:#f87171;box-shadow:0 0 0 3px rgba(248,113,113,.18);animation:epaShake .35s;}' +
     '@keyframes epaShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}' +
-    '.epa-btn{width:100%;margin-top:14px;background:linear-gradient(120deg,#5ed29c,#34d8c4);color:#06100c;font-weight:800;font-size:14px;' +
+    '.epa-btn{width:100%;margin-top:14px;background:linear-gradient(120deg,#8b5cf6,#2dd4bf);color:#06100c;font-weight:800;font-size:14px;' +
     'border:0;border-radius:999px;padding:13px;cursor:pointer;transition:transform .12s,filter .12s;}' +
     '.epa-btn:hover{filter:brightness(1.06);} .epa-btn:active{transform:scale(.98);}' +
     '.epa-err{min-height:16px;margin-top:12px;font-size:12px;color:#f87171;}' +
     '.epa-meter{margin-top:18px;}' +
     '.epa-track{height:4px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden;}' +
-    '.epa-fill{height:100%;width:100%;background:linear-gradient(90deg,#5ed29c,#34d8c4);transform-origin:left;transition:transform 1s linear;}' +
+    '.epa-fill{height:100%;width:100%;background:linear-gradient(90deg,#8b5cf6,#2dd4bf);transform-origin:left;transition:transform 1s linear;}' +
     '.epa-count{margin-top:8px;font-size:11px;color:#6f877e;letter-spacing:.02em;}';
   (document.head || document.documentElement).appendChild(style);
 
@@ -110,7 +110,7 @@
       '<div class="epa-mark"><svg width="22" height="22" viewBox="0 0 24 24" fill="none">' +
         '<rect x="3" y="3" width="7" height="7" rx="1.5" fill="#06100c"/><rect x="14" y="3" width="7" height="7" rx="1.5" fill="#06100c"/>' +
         '<rect x="3" y="14" width="7" height="7" rx="1.5" fill="#06100c"/><rect x="14" y="14" width="7" height="7" rx="1.5" fill="#06100c"/></svg></div>' +
-      '<h1 class="epa-title">Prompt Architect — Private Access</h1>' +
+      '<h1 class="epa-title">Bake — Private Access</h1>' +
       '<p class="epa-sub">This tool is in private testing. Enter your 6-digit access code to continue.</p>' +
       '<input class="epa-input" id="epaCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••" aria-label="6-digit access code" />' +
       '<button class="epa-btn" id="epaUnlock">Unlock</button>' +
