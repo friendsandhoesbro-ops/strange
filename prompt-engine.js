@@ -198,6 +198,27 @@ CONSENT & QUALITY:
   properties — no duplicates, no missing conversion events on the thank-you/confirmation step.`);
   }
 
+  // Design reference — when the user uploads a screenshot via "Design Match", the
+  // client extracts its palette + theme + mood (client-side, no AI). We bake that into
+  // the prompt as an authoritative look to match, overriding the auto library style.
+  _designReference() {
+    const r = this.d.designRef;
+    if (!r || !r.palette || !r.palette.length) return '';
+    const pal = r.palette.map(h => '   - ' + h).join('\n');
+    return (
+`DESIGN REFERENCE — MATCH THE USER'S UPLOADED SCREENSHOT
+The user uploaded a screenshot of the exact look they want. Reproduce its visual language
+faithfully — where it conflicts with the auto-selected style above, this REFERENCE WINS.
+• Theme         : ${r.mode} — keep it ${r.mode}; a ${r.mode} reference must not become its opposite.
+• Mood          : ${r.mood} — match the reference's saturation and energy.
+• Background     : ${r.bg}
+• Primary accent : ${r.accent}
+• Extracted palette (authoritative — derive a full 50–900 scale from these, don't invent new hues):
+${pal}
+Match the reference's contrast, density, and overall feel. Every craft rule in this DESIGN
+SYSTEM (typography, spacing, motion, accessibility, anti-slop) still applies on top of this palette.`);
+  }
+
   // ══════════════════════════════════════════════════════════════════════════
   _buildPrompt() {
     const d = this.d;
@@ -288,6 +309,8 @@ CONSENT & QUALITY:
     h1('DESIGN SYSTEM SPECIFICATION');
     const styleBlock = this._styleDirective();
     if (styleBlock) lines.push(styleBlock);
+    const designRef = this._designReference();
+    if (designRef) lines.push(designRef);
     lines.push(this._designSystem());
 
     // ── IMAGERY & MEDIA ───────────────────────────────────────────────────

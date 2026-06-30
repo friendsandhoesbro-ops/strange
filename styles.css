@@ -1562,3 +1562,13 @@ html, body { overflow-x: hidden; max-width: 100%; }
   .step-panel.active > * { animation: none; }
   .btn-primary::after, .btn-build::after { display: none; }
 }
+
+/* — Native dropdown OPTIONS: force a readable dark popup. The closed select is glassy
+     with light text, but the open <option> list inherited light text on the browser's
+     light popup → invisible on desktop. Pin explicit dark bg + light text. — */
+.form-select option, .form-input option, .form-select optgroup {
+  background-color: #14161f;
+  color: #f4f5fb;
+}
+.form-select option:checked,
+.form-select option:hover { background-color: #8b5cf6; color: #ffffff; }

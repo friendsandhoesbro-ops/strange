@@ -98,6 +98,13 @@
     has(b, 'AVOID THE AI-DEFAULT LOOKS'); has(b, 'terracotta');
     has(b, 'INTERFACE COPY'); has(b, 'Save changes');
   });
+  test('Design Match: uploaded-screenshot palette is injected and overrides', () => {
+    const b = new PromptEngine({ businessName: 'X', designRef: { palette: ['#112233', '#ffaa00'], bg: '#112233', accent: '#ffaa00', mode: 'dark', mood: 'vibrant' } }).generateAll().build;
+    has(b, 'DESIGN REFERENCE'); has(b, '#ffaa00'); has(b, 'dark'); has(b, 'REFERENCE WINS');
+  });
+  test('no design-reference section without an upload', () => {
+    nothas(new PromptEngine(bizB2B).generateAll().build, "MATCH THE USER'S UPLOADED SCREENSHOT");
+  });
   test('new project types exist and label correctly', () => {
     assert(PROJECT_TYPES.some(p => p.id === 'portfolio'), 'portfolio');
     assert(PROJECT_TYPES.some(p => p.id === 'landing-page'), 'landing');

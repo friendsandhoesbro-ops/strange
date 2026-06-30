@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=5">
+<link rel="stylesheet" href="styles.css?v=6">
 <!-- ACCESS GATE (testing-phase lock). To DISABLE: delete/comment the line below + redeploy.
      To change who gets in: edit the SECRET in auth.js. Fully self-contained & removable. -->
 <script src="auth.js?v=2"></script>
@@ -346,6 +346,11 @@
           <div class="char-count">Tap a style to preview the look. “Auto” varies the design so your site doesn’t look like everyone else’s.</div>
         </div>
         <div class="form-group full-width">
+          <label class="form-label">Design Match — copy a look you love <span style="font-weight:500;color:var(--text-3)">(optional)</span></label>
+          <div id="claudeDesign"></div>
+          <div class="char-count">Upload a screenshot of a site or design you love. Bake reads its colours, theme &amp; mood and bakes them into your prompt so the AI builder matches the look.</div>
+        </div>
+        <div class="form-group full-width">
           <label class="form-label">Content manager — so you can edit text, images &amp; video yourself</label>
           <div class="entity-select">
             <button type="button" class="entity-opt active" data-cms="yes" onclick="setCMS(true)">
@@ -628,7 +633,7 @@
 <script src="config.js?v=2"></script>
 <script src="data.js?v=5"></script>
 <script src="style-library.js?v=10"></script>
-<script src="prompt-engine.js?v=11"></script>
+<script src="prompt-engine.js?v=12"></script>
 <script src="scoring.js?v=3"></script>
 <script src="intelligence.js?v=4"></script>
 <script src="glossary.js?v=2"></script>
@@ -640,5 +645,6 @@
 <script src="reveal.js?v=1"></script>
 <script src="aurora.js?v=1"></script>
 <script src="style-gallery.js?v=1"></script>
+<script src="claude-design.js?v=2"></script>
 </body>
 </html>
