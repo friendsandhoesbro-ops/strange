@@ -219,6 +219,57 @@ Match the reference's contrast, density, and overall feel. Every craft rule in t
 SYSTEM (typography, spacing, motion, accessibility, anti-slop) still applies on top of this palette.`);
   }
 
+  // Brand assets + real content + the ANTI-INVENTION guardrail. Always emits the guardrail
+  // (the core "stop generating random content" fix); enriches with whatever the user gave in
+  // the "Your brand & content" intake (assets they have, brand colours, real services, socials).
+  _brandAndContent() {
+    const d = this.d;
+    const has = (id) => Array.isArray(d.assets) && d.assets.indexOf(id) !== -1;
+    let out =
+`This is the trust rule — do NOT fabricate facts to fill space:
+✕ Never invent statistics, metrics, counts ("10,000+ users"), revenue, or years in business.
+✕ Never invent testimonials, client names, client logos, awards, certifications, or press.
+✕ Never invent team members, founders, or their bios.
+✕ Never invent products, services, or prices beyond what is stated in this spec.
+• Use ONLY the real information provided here. For anything NOT provided, insert a CLEARLY-
+  LABELLED placeholder the owner fills later — e.g. [ADD A REAL TESTIMONIAL], [ADD YOUR STAT],
+  [ADD CLIENT LOGO] — never a realistic-looking fake. Placeholders must read as intentional,
+  editable, and obviously not final content.\n\n`;
+
+    const haveLines = [];
+    if (has('logo')) haveLines.push('• Logo — add a labelled, swappable <img> slot (e.g. /logo.svg) wired to the Content Manager; show the brand name as a styled text fallback until it is uploaded. Do NOT design a fake logo.');
+    if (has('product-photos')) haveLines.push('• Product / service photos — build real image slots / a gallery wired to the Content Manager; the owner uploads their own. Use AI images ONLY as temporary, clearly-replaceable fillers.');
+    if (has('team-photos')) haveLines.push('• Team photos — real photo slots in the team/about section wired to the Content Manager; never invent stock faces.');
+    if (has('video')) haveLines.push('• Video — a muted, looping <video> slot with a poster-image fallback and lazy-load, wired to the Content Manager.');
+    if (has('existing-copy')) haveLines.push('• Existing copy — the owner has real text; leave clearly editable text regions and do NOT write lorem ipsum or invented marketing copy in their place.');
+    if (haveLines.length) out += `ASSETS THE OWNER HAS — create real, swappable, CMS-wired slots (never a generated stand-in):\n${haveLines.join('\n')}\n\n`;
+
+    const missing = [];
+    if (!has('logo')) missing.push('logo (a clean, simple wordmark/mark as a starting point — clearly replaceable)');
+    if (!has('product-photos')) missing.push('product / hero imagery');
+    if (!has('team-photos')) missing.push('team / people imagery');
+    if (!has('video')) missing.push('hero / background video (only if the style calls for it)');
+    if (missing.length) out += `NOT PROVIDED — use art-directed AI placeholders per the imagery direction, each clearly replaceable in the Content Manager: ${missing.join(', ')}.\n\n`;
+
+    if (Array.isArray(d.brandColors) && d.brandColors.length) {
+      out += `BRAND COLOURS (authoritative — the owner's real brand colours; build the palette from these and derive the 50–900 scale, do not substitute):\n${d.brandColors.map(c => '   - ' + c).join('\n')}\n\n`;
+    }
+    if (Array.isArray(d.realServices) && d.realServices.length) {
+      out += `REAL SERVICES / PRODUCTS (use these EXACT items — the real catalogue; invent no others):\n${d.realServices.map(s => '   - ' + s).join('\n')}\n\n`;
+    }
+    const socials = Array.isArray(d.socialLinks) ? d.socialLinks.join(', ') : (d.socialLinks || '');
+    if (socials) out += `SOCIAL LINKS (wire these EXACT links; invent no others): ${socials}\n`;
+    if (d.realContact) out += `CONTACT (use exactly as given — never invent an address, phone, or email): ${d.realContact}\n`;
+    if (socials || d.realContact) out += '\n';
+
+    out += `HOW THE OWNER ADDS THEIR FILES (make this effortless):
+• In the AI builder: drop the logo/images into the labelled slots, or paste image URLs.
+• Or after launch: upload everything in the Content Manager (/admin) — logo, images, video.
+• EVERY media slot and editable text region must be wired to the Content Manager so a
+  non-technical owner can swap it with zero code.`;
+    return out;
+  }
+
   // ══════════════════════════════════════════════════════════════════════════
   _buildPrompt() {
     const d = this.d;
@@ -316,6 +367,10 @@ SYSTEM (typography, spacing, motion, accessibility, anti-slop) still applies on 
     // ── IMAGERY & MEDIA ───────────────────────────────────────────────────
     h1('IMAGERY & MEDIA DIRECTION');
     lines.push(this._imageryDirection());
+
+    // ── BRAND ASSETS + REAL CONTENT (anti-invention guardrail; always on) ──
+    h1('BRAND ASSETS, REAL CONTENT & NO INVENTION');
+    lines.push(this._brandAndContent());
 
     // ── CONTENT MANAGEMENT (CMS / ADMIN) ──────────────────────────────────
     if (this.includeCMS) {

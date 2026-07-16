@@ -112,7 +112,7 @@ function toggleRecommended() {
 function renderProjectTypes() {
   const grid = document.getElementById('projectTypeGrid');
   grid.innerHTML = PROJECT_TYPES.map(p => `
-    <div class="project-card" id="pt-${p.id}" onclick="selectProjectType('${p.id}')">
+    <div class="project-card" id="pt-${p.id}" onclick="selectProjectType('${p.id}')" role="button" tabindex="0" aria-pressed="false">
       <div class="project-icon">${p.icon}</div>
       <div>
         <div class="project-name">${p.name}</div>
@@ -124,15 +124,15 @@ function renderProjectTypes() {
 
 function selectProjectType(id) {
   state.formData.projectType = id;
-  document.querySelectorAll('.project-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.project-card').forEach(c => { c.classList.remove('selected'); c.setAttribute('aria-pressed', 'false'); });
   const el = document.getElementById(`pt-${id}`);
-  if (el) el.classList.add('selected');
+  if (el) { el.classList.add('selected'); el.setAttribute('aria-pressed', 'true'); }
 }
 
 function renderGoals() {
   const grid = document.getElementById('goalsGrid');
   grid.innerHTML = BUSINESS_GOALS.map(g => `
-    <div class="chip" onclick="toggleChip(this, 'businessGoals', '${g.replace(/'/g, "\\'")}')">
+    <div class="chip" onclick="toggleChip(this, 'businessGoals', '${g.replace(/'/g, "\\'")}')" data-value="${g}" role="button" tabindex="0" aria-pressed="false">
       ${g}
     </div>
   `).join('');
@@ -141,7 +141,7 @@ function renderGoals() {
 function renderFeatures() {
   const grid = document.getElementById('featuresGrid');
   grid.innerHTML = FEATURES.map(f => `
-    <div class="chip" onclick="toggleChip(this, 'features', '${f.replace(/'/g, "\\'")}')">
+    <div class="chip" onclick="toggleChip(this, 'features', '${f.replace(/'/g, "\\'")}')" data-value="${f}" role="button" tabindex="0" aria-pressed="false">
       ${f}
     </div>
   `).join('');
@@ -150,7 +150,7 @@ function renderFeatures() {
 function renderCompliance() {
   const grid = document.getElementById('complianceGrid');
   grid.innerHTML = COMPLIANCE_OPTIONS.map(c => `
-    <div class="chip" onclick="toggleChip(this, 'compliance', '${c.id}')" title="${c.desc}">
+    <div class="chip" onclick="toggleChip(this, 'compliance', '${c.id}')" title="${c.desc}" data-value="${c.id}" role="button" tabindex="0" aria-pressed="false">
       <strong>${c.label}</strong>&nbsp;<span style="opacity:0.6;font-size:11px">${c.desc}</span>
     </div>
   `).join('');
@@ -159,8 +159,8 @@ function renderCompliance() {
 function toggleChip(el, field, value) {
   const arr = state.formData[field];
   const idx = arr.indexOf(value);
-  if (idx === -1) { arr.push(value); el.classList.add('selected'); }
-  else            { arr.splice(idx, 1); el.classList.remove('selected'); }
+  if (idx === -1) { arr.push(value); el.classList.add('selected'); el.setAttribute('aria-pressed', 'true'); }
+  else            { arr.splice(idx, 1); el.classList.remove('selected'); el.setAttribute('aria-pressed', 'false'); }
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -199,6 +199,8 @@ function updateStepUI() {
 
   // Step bar highlights
   document.querySelectorAll('.step-item').forEach(el => {
+    if (parseInt(el.dataset.step, 10) === state.step) el.setAttribute('aria-current', 'step');
+    else el.removeAttribute('aria-current');
     const s = parseInt(el.dataset.step);
     el.classList.remove('active', 'completed');
     if (s === n) el.classList.add('active');
@@ -417,8 +419,8 @@ function renderIntelligence() {
         <div class="intel-card-label">Worth answering — these change the build</div>
         ${high.map(x => `
           <div class="intel-issue">
-            <div class="intel-item">${x.message}</div>
-            <div class="intel-item intel-muted">${x.recommendation}</div>
+            <div class="intel-item">${escapeHtml(x.message)}</div>
+            <div class="intel-item intel-muted">${escapeHtml(x.recommendation)}</div>
             <button class="intel-fix-btn" onclick="goToStep(${x.step})">Update answer →</button>
           </div>`).join('')}
       </div>`;
@@ -428,8 +430,8 @@ function renderIntelligence() {
         <div class="intel-card-label">Recommendations applied — change if wrong</div>
         ${med.map(x => `
           <div class="intel-issue">
-            <div class="intel-item">${x.message}</div>
-            <div class="intel-item intel-muted">${x.recommendation} <a class="intel-link" onclick="goToStep(${x.step})">Change</a></div>
+            <div class="intel-item">${escapeHtml(x.message)}</div>
+            <div class="intel-item intel-muted">${escapeHtml(x.recommendation)} <a class="intel-link" onclick="goToStep(${x.step})">Change</a></div>
           </div>`).join('')}
       </div>`;
     }
@@ -440,8 +442,8 @@ function renderIntelligence() {
         <div class="intel-card-label">Assumptions made — review recommended</div>
         ${I.assumptions.map(a => `
           <div class="intel-issue">
-            <div class="intel-item">${a.assumption}</div>
-            <div class="intel-item intel-muted">${a.reason}</div>
+            <div class="intel-item">${escapeHtml(a.assumption)}</div>
+            <div class="intel-item intel-muted">${escapeHtml(a.reason)}</div>
             <div class="intel-meta">Confidence: <strong>${a.confidence}</strong> · Review: ${a.review}</div>
           </div>`).join('')}
       </div>`;
@@ -453,9 +455,9 @@ function renderIntelligence() {
         <div class="intel-card-label">Strategic warnings</div>
         ${I.warnings.map(w => `
           <div class="intel-issue">
-            <div class="intel-item"><strong>${w.misaligned}</strong></div>
-            <div class="intel-item intel-muted">${w.why}</div>
-            <div class="intel-item">Fix: ${w.fix}</div>
+            <div class="intel-item"><strong>${escapeHtml(w.misaligned)}</strong></div>
+            <div class="intel-item intel-muted">${escapeHtml(w.why)}</div>
+            <div class="intel-item">Fix: ${escapeHtml(w.fix)}</div>
           </div>`).join('')}
       </div>`;
     }
@@ -472,7 +474,7 @@ function renderIntelligence() {
       ${c.risks.length ? `
         <div class="intel-risks">
           <div class="intel-card-label">Final risks before generation</div>
-          ${c.risks.map(r => `<div class="intel-item">• ${r}</div>`).join('')}
+          ${c.risks.map(r => `<div class="intel-item">• ${escapeHtml(r)}</div>`).join('')}
         </div>` : ''}
     </div>`;
 
@@ -535,8 +537,8 @@ function renderCTOFindings(findings) {
     <div class="cto-finding">
       <div class="cto-finding-icon">${f.icon}</div>
       <div>
-        <div class="cto-finding-title">${f.title}</div>
-        <div class="cto-finding-desc">${f.desc}</div>
+        <div class="cto-finding-title">${escapeHtml(f.title)}</div>
+        <div class="cto-finding-desc">${escapeHtml(f.desc)}</div>
       </div>
     </div>
   `).join('');

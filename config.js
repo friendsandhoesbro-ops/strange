@@ -22,4 +22,9 @@
   // True only on the deployed web version with a hosted backend configured.
   // Used to swap desktop-only buttons (VS Code / local save) for web-safe ones.
   window.EPA_isRemote = function () { return !isLocal && !!window.EPA_API_BASE; };
+
+  // Shared access key for the hosted backend's abuse gate (matches EPA_SHARED_KEY
+  // on the server — rotate both together). It ships client-side, so it DETERS
+  // bots/scanners/drive-by relays; it is not authentication.
+  window.EPA_SHARED = 'epa-bake-4f2c';
 })();

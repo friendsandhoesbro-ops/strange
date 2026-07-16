@@ -19,6 +19,12 @@
     document.addEventListener('touchstart', resume, { once: true, passive: true });
     document.addEventListener('click', resume, { once: true });
 
+    // Stop decoding the video while the tab is hidden (saves battery/CPU); resume on return.
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) { try { v.pause(); } catch (e) {} }
+      else { play(); }
+    });
+
     try {
       if (v.canPlayType('application/vnd.apple.mpegurl')) {
         // Native HLS (Safari)

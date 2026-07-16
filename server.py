@@ -24,6 +24,22 @@ import io
 PORT       = int(os.environ.get('PORT', 3737))
 DIR        = os.path.dirname(os.path.abspath(__file__))
 LEARN_FILE = os.path.join(DIR, 'learning.json')  # non-sensitive usage log
+
+# ── Public-instance hardening ────────────────────────────────────────────────
+# On a public host (Render sets RENDER=true; or set EPA_PUBLIC=1) the API gets:
+#   • a shared-key check (X-EPA-Key header) on /api/build and /api/learn
+#   • /api/export and /api/open-vscode disabled entirely (desktop/local features)
+#   • request-size caps everywhere + a light per-IP interval on /api/learn
+# HONEST TRUST BOUNDARY: the shared key also ships in the frontend (config.js),
+# so this is ABUSE DETERRENCE against bots/scanners/drive-by relays — it is NOT
+# authentication. Real per-user auth is deliberately out of scope for this app.
+PUBLIC     = bool(os.environ.get('RENDER') or os.environ.get('EPA_PUBLIC'))
+SHARED_KEY = os.environ.get('EPA_SHARED_KEY', 'epa-bake-4f2c')  # rotate via env without a code change
+MAX_BODY         = 600_000    # bytes — largest build prompts are ~100KB; generous headroom
+LEARN_MAX_BODY   = 4_000
+EXPORT_MAX_FILES = 60
+EXPORT_MAX_BYTES = 8_000_000
+_last_learn = {}              # ip -> last accepted ts (in-memory, best-effort)
 API_URLS = {
     'claude': 'https://api.anthropic.com/v1/messages',
     'openai': 'https://api.openai.com/v1/chat/completions',
@@ -89,10 +105,23 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *a):
         pass  # silence request logs
 
+    def _cors_origin(self):
+        # Defense-in-depth only (browsers enforce CORS; scripts ignore it).
+        # Reflect just localhost + *.netlify.app instead of the old wildcard.
+        o = self.headers.get('Origin', '')
+        if re.match(r'^https?://(localhost|127\.0\.0\.1)(:\d+)?$', o):
+            return o
+        if re.match(r'^https://[a-z0-9-]+\.netlify\.app$', o):
+            return o
+        return ''
+
     def end_headers(self):
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        o = self._cors_origin()
+        if o:
+            self.send_header('Access-Control-Allow-Origin', o)
+            self.send_header('Vary', 'Origin')
+            self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+            self.send_header('Access-Control-Allow-Headers', 'Content-Type, X-EPA-Key')
         # Always serve fresh files — stale JS after updates breaks the app
         self.send_header('Cache-Control', 'no-cache, must-revalidate')
         super().end_headers()
@@ -123,9 +152,29 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     # ── helpers ────────────────────────────────────────────────────────────
 
-    def _read_body(self):
+    def _read_body(self, cap=MAX_BODY):
         n = int(self.headers.get('Content-Length', 0))
-        return json.loads(self.rfile.read(n)) if n else {}
+        if n <= 0:
+            return {}
+        if n > cap:
+            # Drain a bounded amount of the in-flight body so the 413 flushes cleanly
+            # instead of the socket resetting. Pathologically huge bodies still get cut.
+            try:
+                remaining = min(n, 2_000_000)
+                while remaining > 0:
+                    chunk = self.rfile.read(min(65536, remaining))
+                    if not chunk:
+                        break
+                    remaining -= len(chunk)
+            except Exception:
+                pass
+            self._json_error(413, 'Payload too large')
+            return None
+        return json.loads(self.rfile.read(n))
+
+    def _key_ok(self):
+        # Local/desktop instance is trusted; public instance requires the shared key.
+        return (not PUBLIC) or self.headers.get('X-EPA-Key', '') == SHARED_KEY
 
     def _json_error(self, code, msg):
         body = json.dumps({'error': msg}).encode()
@@ -152,13 +201,25 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def _handle_export(self):
         try:
-            body  = self._read_body()
+            if PUBLIC:
+                # Writes to server disk — a desktop/local feature, never a public API.
+                self._json_error(403, 'Export is a desktop-app feature')
+                return
+            body = self._read_body()
+            if body is None:
+                return
             name  = (body.get('name') or 'my-website').strip()
             files = body.get('files') or []
             prompt = body.get('prompt') or ''
 
             if not files:
                 self._json_error(400, 'No files to export')
+                return
+            if len(files) > EXPORT_MAX_FILES:
+                self._json_error(400, f'Too many files (max {EXPORT_MAX_FILES})')
+                return
+            if sum(len(f.get('content') or '') for f in files) > EXPORT_MAX_BYTES:
+                self._json_error(400, 'Export too large')
                 return
 
             slug = re.sub(r'[^a-z0-9-]+', '-', name.lower()).strip('-')[:50] or 'site'
@@ -215,7 +276,12 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def _handle_open_vscode(self):
         try:
-            body   = self._read_body()
+            if PUBLIC:
+                self._json_error(403, 'VS Code launch is a desktop-app feature')
+                return
+            body = self._read_body()
+            if body is None:
+                return
             folder = body.get('folder') or ''
             safe_root = os.path.normpath(os.path.join(DIR, 'generated-sites'))
             if not os.path.normpath(folder).startswith(safe_root):
@@ -259,7 +325,22 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def _handle_learn(self):
         try:
-            entry = self._read_body()
+            if not self._key_ok():
+                self._json_error(403, 'Missing or invalid access key')
+                return
+            # Light per-IP interval on the public instance (each write is a full
+            # read-modify-write of learning.json — don't let a flood thrash disk).
+            if PUBLIC:
+                ip, now = self.client_address[0], time.time()
+                if now - _last_learn.get(ip, 0) < 1.0:
+                    self._json_ok({'ok': True, 'throttled': True})
+                    return
+                if len(_last_learn) > 1000:
+                    _last_learn.clear()
+                _last_learn[ip] = now
+            entry = self._read_body(LEARN_MAX_BODY)
+            if entry is None:
+                return
             if not isinstance(entry, dict):
                 self._json_ok({'ok': True, 'count': 0})
                 return
@@ -300,7 +381,12 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def _handle_build(self):
         try:
-            body     = self._read_body()
+            if not self._key_ok():
+                self._json_error(403, 'Missing or invalid access key')
+                return
+            body = self._read_body()
+            if body is None:
+                return
             platform = body.get('platform', 'claude')
             api_key  = (body.get('apiKey') or '').strip()
             model    = body.get('model', 'claude-sonnet-4-6')

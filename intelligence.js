@@ -566,7 +566,8 @@ const LearningCapture = {
       if (typeof fetch === 'function') {
         const url = (typeof EPA_apiUrl === 'function') ? EPA_apiUrl('/api/learn') : '/api/learn';
         fetch(url, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-EPA-Key': (window.EPA_SHARED || '') },
           body: JSON.stringify(entry),
         }).catch(() => {});
       }

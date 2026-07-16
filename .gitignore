@@ -2,6 +2,7 @@
 generated-sites/
 learning.json
 *.log
+__pycache__/
 
 # Private access-code generator — MUST stay local; never deploy (it shows live codes)
 code-generator.html

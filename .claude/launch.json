@@ -3,8 +3,9 @@
   "configurations": [
     {
       "name": "Enterprise Prompt Architect",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["serve", "-p", "3737", "."],
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["server.py"],
+      "autoPort": true,
       "port": 3737
     }
   ]

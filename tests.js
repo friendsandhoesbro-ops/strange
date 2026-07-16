@@ -105,6 +105,62 @@
   test('no design-reference section without an upload', () => {
     nothas(new PromptEngine(bizB2B).generateAll().build, "MATCH THE USER'S UPLOADED SCREENSHOT");
   });
+  test('anti-invention guardrail is always present', () => {
+    const b = new PromptEngine(bizB2B).generateAll().build;
+    has(b, 'BRAND ASSETS, REAL CONTENT & NO INVENTION');
+    has(b, 'Never invent testimonials'); has(b, 'Never invent statistics');
+    has(b, 'CLEARLY-'); // clearly-labelled placeholders
+  });
+  test('security: shared escapeHtml neutralises tags, quotes and event handlers', () => {
+    const out = escapeHtml('<img src=x onerror="alert(1)">\'"');
+    nothas(out, '<img'); nothas(out, '"');
+    has(out, '&lt;img'); has(out, '&quot;'); has(out, '&#39;');
+  });
+  test('security: shared backend key is configured for the abuse gate', () => {
+    assert(typeof window.EPA_SHARED === 'string' && window.EPA_SHARED.length >= 8, 'EPA_SHARED missing/short');
+  });
+  test('a11y: Enter activates role=button divs (delegated keyboard support)', () => {
+    assert(window.A11Y_READY === true, 'a11y module not loaded');
+    const el = document.createElement('div');
+    el.setAttribute('role', 'button'); el.setAttribute('tabindex', '0');
+    let clicks = 0; el.addEventListener('click', () => clicks++);
+    document.body.appendChild(el);
+    el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    document.body.removeChild(el);
+    eq(clicks, 1, 'Enter did not activate');
+  });
+  test('draft: clearDraft helper exists and removes the stored draft', () => {
+    assert(typeof window.EPA_clearDraft === 'function', 'EPA_clearDraft missing');
+    try {
+      localStorage.setItem('epa_draft_v1', JSON.stringify({ v: 1, step: 2, formData: { businessName: 'X' } }));
+      window.EPA_clearDraft();
+      eq(localStorage.getItem('epa_draft_v1'), null, 'draft not cleared');
+    } catch (e) { /* storage unavailable in this env — skip */ }
+  });
+  test('a11y: Space activates and native buttons are left alone', () => {
+    const div = document.createElement('div');
+    div.setAttribute('role', 'button'); div.setAttribute('tabindex', '0');
+    let divClicks = 0; div.addEventListener('click', () => divClicks++);
+    const btn = document.createElement('button');
+    let btnClicks = 0; btn.addEventListener('click', () => btnClicks++);
+    document.body.appendChild(div); document.body.appendChild(btn);
+    div.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }));
+    btn.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    document.body.removeChild(div); document.body.removeChild(btn);
+    eq(divClicks, 1, 'Space did not activate div');
+    eq(btnClicks, 0, 'native button must not be double-fired by the delegate');
+  });
+  test('brand intake: real assets/colours/services flow into the prompt', () => {
+    const b = new PromptEngine({
+      businessName: 'Glow', industry: 'Beauty', projectType: 'ecommerce',
+      assets: ['logo', 'video'], brandColors: ['#E8536B', '#101114'],
+      realServices: ['Bridal styling', 'On-location makeup'],
+      socialLinks: ['instagram.com/glow'], realContact: 'hi@glow.com',
+    }).generateAll().build;
+    has(b, 'ASSETS THE OWNER HAS'); has(b, 'swappable'); has(b, 'logo');
+    has(b, '#E8536B'); has(b, 'Bridal styling');
+    has(b, 'instagram.com/glow'); has(b, 'hi@glow.com');
+  });
   test('new project types exist and label correctly', () => {
     assert(PROJECT_TYPES.some(p => p.id === 'portfolio'), 'portfolio');
     assert(PROJECT_TYPES.some(p => p.id === 'landing-page'), 'landing');

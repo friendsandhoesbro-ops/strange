@@ -7,3 +7,19 @@
 # The /api/* endpoints only exist in the desktop (Python) version. On static
 # hosting they simply 404, and the app detects that and shows the web-version
 # guidance automatically — so no redirects are required.
+
+# ── Security headers ─────────────────────────────────────────────────────────
+# CSP note: the app uses inline onclick handlers + inline styles throughout, so
+# 'unsafe-inline' is required — the CSP still blocks external script injection,
+# plugs the self-XSS class, and pins every network destination we actually use:
+# cdnjs/jsdelivr (libs), Google Fonts, mux (bg video), Render (backend),
+# api.anthropic/openai never called directly (they go via the backend),
+# codesandbox (form-action for the sandbox export).
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' blob: https://*.mux.com; connect-src 'self' https://prompt-architect-api-s8rn.onrender.com https://*.mux.com https://litix.io https://*.litix.io; form-action 'self' https://codesandbox.io; frame-ancestors 'none'; base-uri 'self'; object-src 'none'"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"

@@ -395,7 +395,7 @@ async function startBuild() {
   try {
     const resp = await fetch((typeof EPA_apiUrl === 'function' ? EPA_apiUrl('/api/build') : '/api/build'), {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-EPA-Key': (window.EPA_SHARED || '') },
       body:    JSON.stringify({
         platform: buildState.platform,
         apiKey,
@@ -795,9 +795,13 @@ function formatSize(bytes) {
   return `${(bytes / 1024).toFixed(1)}KB`;
 }
 
+// Shared HTML escaper — THE helper for any user-influenced text that reaches
+// innerHTML anywhere in the app (build terminal, intel panel, CTO findings).
 function escapeHtml(str) {
   return (str || '')
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
