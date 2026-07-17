@@ -7,7 +7,7 @@ const BUILD_PLATFORMS = [
     id:          'claude',
     name:        'Claude API',
     badge:       'Best Results',
-    icon:        `<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="url(#cg)" stroke-width="1.5"/><path d="M7 10h6M10 7v6" stroke="url(#cg)" stroke-width="1.5" stroke-linecap="round"/><defs><linearGradient id="cg" x1="2" y1="2" x2="18" y2="18" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs></svg>`,
+    icon:        `<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="url(#cg)" stroke-width="1.5"/><path d="M7 10h6M10 7v6" stroke="url(#cg)" stroke-width="1.5" stroke-linecap="round"/><defs><linearGradient id="cg" x1="2" y1="2" x2="18" y2="18" gradientUnits="userSpaceOnUse"><stop stop-color="#ff7a2e"/><stop offset="1" stop-color="#ff5a1f"/></linearGradient></defs></svg>`,
     desc:        'Anthropic Claude — finest code quality',
     models: [
       { id: 'claude-sonnet-4-6',         name: 'Claude Sonnet 4.6',  note: 'Recommended — fast & capable' },

@@ -501,7 +501,7 @@ function renderScores(scores) {
 
   grid.innerHTML = items.map(item => {
     const val = scores[item.key];
-    const color = val >= 90 ? '#10b981' : val >= 75 ? '#f59e0b' : '#ef4444';
+    const color = val >= 90 ? '#9fd77a' : val >= 75 ? '#f59e0b' : '#ef4444';
     return `
       <div class="score-card">
         <div class="score-card-name">${item.label}</div>

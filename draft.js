@@ -103,11 +103,11 @@
       var st = document.createElement('style'); st.id = 'epaDraftCSS';
       st.textContent =
         '#epaDraftBanner{position:fixed;left:50%;transform:translateX(-50%);bottom:88px;z-index:120;display:flex;align-items:center;gap:12px;' +
-        'background:rgba(11,12,20,.9);backdrop-filter:blur(14px);border:1px solid rgba(139,92,246,.4);border-radius:14px;padding:11px 14px;' +
+        'background:rgba(16,12,9,.9);backdrop-filter:blur(14px);border:1px solid rgba(255,90,31,.4);border-radius:14px;padding:11px 14px;' +
         'box-shadow:0 18px 50px rgba(0,0,0,.5);font-size:13px;color:var(--text-1,#f4f5fb);max-width:calc(100vw - 32px);transition:opacity .4s,transform .4s;}' +
         '#epaDraftBanner.epa-draft-hide{opacity:0;transform:translateX(-50%) translateY(10px);pointer-events:none;}' +
         '#epaDraftBanner button{font-family:inherit;cursor:pointer;border-radius:999px;font-size:12px;font-weight:600;}' +
-        '#epaDraftFresh{background:linear-gradient(120deg,#8b5cf6,#2dd4bf);color:#0b0712;border:0;padding:6px 12px;}' +
+        '#epaDraftFresh{background:linear-gradient(120deg,#ff5a1f,#ffb454);color:#140b06;border:0;padding:6px 12px;}' +
         '#epaDraftDismiss{background:transparent;border:1px solid rgba(255,255,255,.16);color:var(--text-2,#a6abc6);width:24px;height:24px;padding:0;}';
       document.head.appendChild(st);
     }
