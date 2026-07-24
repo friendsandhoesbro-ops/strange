@@ -129,6 +129,26 @@
     document.body.removeChild(el);
     eq(clicks, 1, 'Enter did not activate');
   });
+  test('smart fill: classifies an e-commerce business correctly', () => {
+    const p = SmartFill.analyze('We sell affordable women\'s clothing online with checkout and delivery across Spain.');
+    eq(p.projectType, 'ecommerce', 'type');
+    eq(p.industry, 'E-Commerce & Retail', 'industry');
+    assert(p.goals.indexOf('E-Commerce Sales') !== -1, 'goal');
+    assert(p.features.indexOf('Payments & Billing') !== -1, 'feature');
+    assert(p.compliance.indexOf('pci') !== -1 && p.compliance.indexOf('gdpr') !== -1, 'compliance');
+  });
+  test('smart fill: classifies an individual portfolio correctly', () => {
+    const p = SmartFill.analyze('I am a freelance photographer and I want to showcase my work to win clients.');
+    eq(p.entityType, 'individual', 'entity');
+    eq(p.projectType, 'portfolio', 'type');
+    assert(p.features.indexOf('Image Gallery') !== -1, 'gallery');
+  });
+  test('save: formatAnswers produces labelled, organised output', () => {
+    const txt = BakeSave.formatAnswers({ businessName: 'Glow', industry: 'Beauty', projectType: 'ecommerce', businessGoals: ['E-Commerce Sales'], features: [], compliance: ['gdpr'] });
+    has(txt, 'STEP 1 · BUSINESS'); has(txt, 'Name'); has(txt, 'Glow');
+    has(txt, 'STEP 3 · GOALS'); has(txt, 'E-Commerce Sales'); has(txt, 'STEP 6 · COMPLIANCE');
+    nothas(txt, 'undefined');
+  });
   test('draft: clearDraft helper exists and removes the stored draft', () => {
     assert(typeof window.EPA_clearDraft === 'function', 'EPA_clearDraft missing');
     try {
