@@ -13,6 +13,17 @@
 (function () {
   'use strict';
 
+  // ── Built-in demo: a first-time user with an empty box can click "Try an
+  //    example" to fill a realistic brief and watch the whole flow run. The
+  //    wording is tuned so the real classifier reads it as an e-commerce retail
+  //    business (verified by a unit test — adjust the wording, never analyze()).
+  var EXAMPLE = {
+    businessName: 'Ember & Oak Coffee Roasters',
+    description: 'Ember & Oak Coffee Roasters is a small-batch specialty coffee roastery. ' +
+      'We sell our premium single-origin beans online across the UK and roast every order fresh to ship the same week. ' +
+      'We also supply wholesale coffee to independent cafés and neighbourhood restaurants.'
+  };
+
   // ── Pure classifier: description text → recommended picks ─────────────────
   function analyze(text) {
     var t = ' ' + String(text || '').toLowerCase() + ' ';
@@ -64,9 +75,9 @@
 
     // Features (candidates — apply() skips any that don't exist as chips)
     if (p.projectType === 'ecommerce' || p.projectType === 'marketplace') p.features.push('Payments & Billing', 'User Accounts & Auth');
-    if (has(/book|appointment|schedul|reservation/)) p.features.push('Booking & Scheduling');
+    if (has(/book|appointment|schedul|reservation/)) p.features.push('Booking System');
     if (has(/blog|articles|content|tips|guides/)) p.features.push('Blog / Content Hub');
-    if (p.projectType === 'portfolio' || p.projectType === 'construction' || p.projectType === 'agency') p.features.push('Image Gallery');
+    if (p.projectType === 'portfolio' || p.projectType === 'construction' || p.projectType === 'agency') p.features.push('File Upload / Media Library');
     if (has(/newsletter|mailing list|email list/)) p.features.push('Email Marketing Integration');
     if (has(/video|film|reel/)) p.features.push('Video / Media Player');
 
@@ -163,7 +174,10 @@
       '.sf-btn:disabled{opacity:.7;cursor:wait;transform:none;}' +
       '@keyframes sfIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}' +
       '.sf-spin{width:12px;height:12px;border-radius:50%;border:2px solid rgba(255,180,84,.3);border-top-color:#ffb454;animation:sfSpin .7s linear infinite;display:inline-block;}' +
-      '@keyframes sfSpin{to{transform:rotate(360deg)}}';
+      '@keyframes sfSpin{to{transform:rotate(360deg)}}' +
+      // "Try an example" — ghost amber pill, shown only while the box is empty/short.
+      '.sf-example{border-color:rgba(255,180,84,0.35);background:rgba(255,180,84,0.06);}' +
+      '.sf-example:hover{border-color:rgba(255,180,84,0.6);background:rgba(255,180,84,0.13);box-shadow:0 8px 24px rgba(255,180,84,0.18);}';
     var st = document.createElement('style'); st.id = 'smartFillCSS'; st.textContent = css;
     document.head.appendChild(st);
   }
@@ -177,7 +191,28 @@
     btn.innerHTML = SF_LABEL;
     btn.addEventListener('click', function () { recommendAndGenerate(btn); });
     ta.parentNode.appendChild(btn);
-    function toggle() { btn.classList.toggle('sf-show', (ta.value || '').trim().length >= 25); }
+
+    // "Try an example" — the inverse of the Recommend pill: visible only while
+    // the description is empty/short, so a brand-new user always has one click.
+    var exBtn = document.createElement('button');
+    exBtn.type = 'button'; exBtn.className = 'sf-btn sf-example'; exBtn.id = 'smartFillExampleBtn';
+    exBtn.innerHTML = '▶ Try an example';
+    exBtn.addEventListener('click', function () {
+      var nameEl = document.getElementById('businessName');
+      var descEl = document.getElementById('description');
+      // Dispatch real input events so char-count, reveal toggles and draft all react.
+      if (nameEl) { nameEl.value = EXAMPLE.businessName; nameEl.dispatchEvent(new Event('input', { bubbles: true })); }
+      if (descEl) { descEl.value = EXAMPLE.description; descEl.dispatchEvent(new Event('input', { bubbles: true })); }
+      // Same flow the manual pill runs: classify → fill → generate (feedback on the real button).
+      recommendAndGenerate(btn);
+    });
+    ta.parentNode.appendChild(exBtn);
+
+    function toggle() {
+      var enough = (ta.value || '').trim().length >= 25;
+      btn.classList.toggle('sf-show', enough);
+      exBtn.classList.toggle('sf-show', !enough);      // inverse condition
+    }
     ta.addEventListener('input', toggle);
     toggle();
   }
@@ -185,5 +220,5 @@
   if (document.readyState !== 'loading') init();
   else document.addEventListener('DOMContentLoaded', init);
 
-  window.SmartFill = { analyze: analyze, apply: apply };
+  window.SmartFill = { analyze: analyze, apply: apply, example: EXAMPLE };
 })();

@@ -10,6 +10,11 @@
 // The draft DOES include the user's own wizard answers (contact, socials, brand
 // notes) in this browser's localStorage — same-origin, single device, removed by
 // "Start fresh". A deliberate, documented trade-off for refresh-proofing.
+//
+// EXPORTS: window.EPA_clearDraft = clearDraft (wipe the stored draft) and
+// window.EPA_hydrate = hydrate(formData, step) — the proven replay logic that
+// re-plays a saved answer-set through the real controls. import.js reuses
+// EPA_hydrate to load an encrypted/JSON save back into the wizard.
 // ──────────────────────────────────────────────────────────────────────────────
 (function () {
   'use strict';
@@ -137,4 +142,5 @@
   else document.addEventListener('DOMContentLoaded', boot);
 
   window.EPA_clearDraft = clearDraft;
+  window.EPA_hydrate = hydrate;   // additive: import.js replays a loaded save through the real controls
 })();

@@ -141,7 +141,9 @@
     const p = SmartFill.analyze('I am a freelance photographer and I want to showcase my work to win clients.');
     eq(p.entityType, 'individual', 'entity');
     eq(p.projectType, 'portfolio', 'type');
-    assert(p.features.indexOf('Image Gallery') !== -1, 'gallery');
+    assert(p.features.indexOf('File Upload / Media Library') !== -1, 'gallery');
+    // every emitted feature must be a REAL chip value from data.js (no silent skips)
+    p.features.forEach(f => assert(FEATURES.indexOf(f) !== -1, 'unknown feature: ' + f));
   });
   test('save: formatAnswers produces labelled, organised output', () => {
     const txt = BakeSave.formatAnswers({ businessName: 'Glow', industry: 'Beauty', projectType: 'ecommerce', businessGoals: ['E-Commerce Sales'], features: [], compliance: ['gdpr'] });
@@ -156,6 +158,40 @@
       window.EPA_clearDraft();
       eq(localStorage.getItem('epa_draft_v1'), null, 'draft not cleared');
     } catch (e) { /* storage unavailable in this env — skip */ }
+  });
+  test('smart fill: the built-in example classifies as e-commerce retail', () => {
+    const ex = SmartFill.example;
+    assert(ex && ex.description && ex.businessName, 'example missing');
+    const p = SmartFill.analyze(ex.description);
+    eq(p.projectType, 'ecommerce', 'type');
+    eq(p.industry, 'E-Commerce & Retail', 'industry');
+  });
+  test('import: validate accepts a well-formed save', () => {
+    const r = BakeImport.validate({ v: 1, savedAt: 'x', formData: { businessName: 'Ember', projectType: 'ecommerce' } });
+    assert(r.ok === true, 'should be ok');
+    eq(r.formData.businessName, 'Ember', 'formData passthrough');
+  });
+  test('import: validate rejects garbage', () => {
+    assert(BakeImport.validate(null).ok === false, 'null');
+    assert(BakeImport.validate('nope').ok === false, 'string');
+    assert(BakeImport.validate({ v: 2, formData: {} }).ok === false, 'wrong version');
+    assert(BakeImport.validate({ v: 1 }).ok === false, 'missing formData');
+    assert(BakeImport.validate({ v: 1, formData: [] }).ok === false, 'array formData');
+  });
+  test('history: push caps at 5 and lists newest first', () => {
+    BakeHistory.clear();
+    for (let i = 1; i <= 6; i++) BakeHistory.push({ ts: i, name: 'P' + i, style: 'Auto', results: { build: 'b' + i, cto: '', sales: '' } });
+    const l = BakeHistory.list();
+    eq(l.length, 5, 'cap at 5');
+    eq(l[0].name, 'P6', 'newest first');
+    eq(l[4].name, 'P2', 'oldest kept trimmed to 5');
+    BakeHistory.clear();
+  });
+  test('history: clear empties the store', () => {
+    BakeHistory.push({ ts: 1, name: 'X', style: 'Auto', results: { build: 'b', cto: '', sales: '' } });
+    assert(BakeHistory.list().length >= 1, 'pushed');
+    BakeHistory.clear();
+    eq(BakeHistory.list().length, 0, 'cleared');
   });
   test('a11y: Space activates and native buttons are left alone', () => {
     const div = document.createElement('div');
