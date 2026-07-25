@@ -24,8 +24,66 @@
     DIGITS: 6,
     PERIOD: 30,        // seconds per code — the "changes every 30 seconds" requirement
     SKEW: 1,           // also accept the code from ±1 window (clock-skew tolerance)
-    STORAGE_KEY: 'epa_unlocked',
+    STORAGE_KEY: 'epa_unlocked',       // sessionStorage — unlocked for THIS tab session
+    DISABLE_KEY: 'epa_2fa_disabled',   // localStorage — 2FA turned OFF for THIS device (persists)
   };
+
+  // ── 2FA on/off toggle (per-device) ───────────────────────────────────────────
+  // The owner can turn 2FA off from the lock screen, but ONLY with a valid current
+  // code (so a stranger who lands on the gate can't just click their way in). The
+  // "off" state lives in localStorage, so it applies to THIS browser only — anyone
+  // else's browser still gets the full gate. Turning it back ON is free (a small
+  // "2FA off" pill shows in-app while it's disabled). A true global off = remove
+  // this <script> and redeploy.
+  function is2FADisabled() { try { return localStorage.getItem(EPA_AUTH.DISABLE_KEY) === '1'; } catch (e) { return false; } }
+  function set2FADisabled(off) {
+    try { off ? localStorage.setItem(EPA_AUTH.DISABLE_KEY, '1') : localStorage.removeItem(EPA_AUTH.DISABLE_KEY); } catch (e) {}
+  }
+
+  // Floating pill shown while 2FA is OFF — click it to turn protection back on.
+  function showReenablePill() {
+    if (!document.body) { document.addEventListener('DOMContentLoaded', showReenablePill); return; }
+    if (document.getElementById('epa2faPill')) return;
+    var st = document.createElement('style');
+    st.textContent =
+      '#epa2faPill{position:fixed;left:14px;bottom:14px;z-index:2147483646;display:flex;align-items:center;gap:8px;' +
+      'background:rgba(18,13,10,.82);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);' +
+      'border:1px solid rgba(255,90,31,.28);border-radius:999px;padding:7px 12px;cursor:pointer;' +
+      'font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.02em;color:#e9ddd2;' +
+      'box-shadow:0 10px 30px rgba(0,0,0,.45);transition:transform .12s,filter .12s;opacity:.9;}' +
+      '#epa2faPill:hover{filter:brightness(1.08);transform:translateY(-1px);opacity:1;}' +
+      '#epa2faPill:focus-visible{outline:2px solid #ff5a1f;outline-offset:2px;}' +
+      '#epa2faPill .epa2faDot{width:7px;height:7px;border-radius:50%;background:#f8b34a;box-shadow:0 0 8px rgba(248,179,74,.9);}' +
+      '#epa2faPill b{color:#ffb454;font-weight:700;}' +
+      '#epa2faToast{position:fixed;left:14px;bottom:58px;z-index:2147483646;background:rgba(18,13,10,.94);' +
+      'border:1px solid rgba(255,90,31,.28);border-radius:10px;padding:10px 13px;font-family:Inter,system-ui,sans-serif;' +
+      'font-size:12px;line-height:1.45;color:#e9ddd2;max-width:260px;box-shadow:0 10px 30px rgba(0,0,0,.5);' +
+      'opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s;pointer-events:none;}' +
+      '#epa2faToast.show{opacity:1;transform:translateY(0);}';
+    document.head.appendChild(st);
+    var pill = document.createElement('div');
+    pill.id = 'epa2faPill';
+    pill.setAttribute('role', 'button'); pill.setAttribute('tabindex', '0');
+    pill.setAttribute('aria-label', 'Two-factor access is off on this device — turn it back on');
+    pill.innerHTML = '<span class="epa2faDot"></span> 2FA off · <b>turn on</b>';
+    function toast(msg) {
+      var t = document.getElementById('epa2faToast');
+      if (!t) { t = document.createElement('div'); t.id = 'epa2faToast'; document.body.appendChild(t); }
+      t.textContent = msg; void t.offsetWidth; t.classList.add('show');
+      clearTimeout(t.__h); t.__h = setTimeout(function () { t.classList.remove('show'); }, 3400);
+    }
+    function reenable() {
+      set2FADisabled(false);
+      pill.parentNode && pill.parentNode.removeChild(pill);
+      toast('2FA turned back on — you’ll enter a code on your next visit.');
+    }
+    pill.addEventListener('click', reenable);
+    pill.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); reenable(); } });
+    document.body.appendChild(pill);
+  }
+
+  // 2FA turned OFF on this device → skip the lock entirely, offer the re-enable pill.
+  if (is2FADisabled()) { showReenablePill(); return; }
 
   // Already unlocked this browser session? Skip the gate entirely.
   try { if (sessionStorage.getItem(EPA_AUTH.STORAGE_KEY) === '1') return; } catch (e) {}
@@ -100,7 +158,13 @@
     '.epa-meter{margin-top:18px;}' +
     '.epa-track{height:4px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden;}' +
     '.epa-fill{height:100%;width:100%;background:linear-gradient(90deg,#ff5a1f,#ffb454);transform-origin:left;transition:transform 1s linear;}' +
-    '.epa-count{margin-top:8px;font-size:11px;color:#8a7d6f;letter-spacing:.02em;}';
+    '.epa-count{margin-top:8px;font-size:11px;color:#8a7d6f;letter-spacing:.02em;}' +
+    '.epa-toggle{width:100%;margin-top:16px;background:transparent;border:1px solid rgba(255,255,255,.14);color:#cdbfae;' +
+    'font-family:"JetBrains Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.04em;text-transform:uppercase;' +
+    'border-radius:999px;padding:9px;cursor:pointer;transition:border-color .15s,color .15s;}' +
+    '.epa-toggle:hover{border-color:rgba(255,90,31,.5);color:#ffb454;}' +
+    '.epa-toggle:focus-visible{outline:2px solid #ff5a1f;outline-offset:2px;}' +
+    '.epa-toggle-note{margin-top:9px;font-size:10.5px;line-height:1.45;color:#8a7d6f;}';
   (document.head || document.documentElement).appendChild(style);
 
   var gate = document.createElement('div');
@@ -117,6 +181,8 @@
       '<div class="epa-err" id="epaErr"></div>' +
       '<div class="epa-meter"><div class="epa-track"><div class="epa-fill" id="epaFill"></div></div>' +
       '<div class="epa-count" id="epaCount">Code rotates every 30 seconds</div></div>' +
+      '<button type="button" class="epa-toggle" id="epa2faOff">Turn off 2FA on this device</button>' +
+      '<div class="epa-toggle-note">Type your current code above first, then tap this to skip the code on future visits — this browser only. A "2FA off" pill appears in-app to switch it back on.</div>' +
     '</div>';
 
   function lockScroll() { try { document.documentElement.style.overflow = 'hidden'; } catch (e) {} }
@@ -166,6 +232,28 @@
       if (input.value.replace(/\D/g, '').length === EPA_AUTH.DIGITS) attempt(); // auto-submit
     });
     setTimeout(function () { input.focus(); }, 60);
+
+    // ── Turn 2FA OFF (per-device) — requires a valid current code so a stranger who
+    //    reaches the lock can't just click their way in. ──────────────────────────
+    var toggleBtn = gate.querySelector('#epa2faOff');
+    function turnOff() {
+      if (busy) return;
+      var v = (input.value || '').replace(/\D/g, '');
+      if (v.length !== EPA_AUTH.DIGITS) {
+        err.textContent = 'Enter your current 6-digit code above first, then turn 2FA off.';
+        input.classList.remove('epa-bad'); void input.offsetWidth; input.classList.add('epa-bad'); input.focus();
+        return;
+      }
+      busy = true; err.textContent = '';
+      isValid(v).then(function (ok) {
+        busy = false;
+        if (!ok) { fail(); return; }
+        set2FADisabled(true);   // persist: this browser won't be prompted again
+        showReenablePill();     // in-app control to turn protection back on
+        succeed();              // enter the app + remember this session
+      }).catch(function () { busy = false; fail(); });
+    }
+    if (toggleBtn) toggleBtn.addEventListener('click', turnOff);
   }
 
   if (document.body) mount();
