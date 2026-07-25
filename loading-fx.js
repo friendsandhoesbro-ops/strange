@@ -14,6 +14,10 @@
   var particles = [];
   var mouse = { x: null, y: null, r: 150 };
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Fewer nodes + shorter links on mobile — the connect() pass is O(n²), so this
+  // keeps the loader from spiking a phone GPU during generation.
+  var mobile = window.matchMedia &&
+    (window.matchMedia('(max-width: 820px)').matches || window.matchMedia('(pointer: coarse)').matches);
 
   function Particle(x, y, dx, dy, s) { this.x = x; this.y = y; this.dx = dx; this.dy = dy; this.s = s; }
   Particle.prototype.draw = function () {
@@ -41,7 +45,8 @@
 
   function init() {
     particles = [];
-    var n = Math.min(170, Math.floor((W * H) / 11000));
+    var n = mobile ? Math.min(45, Math.floor((W * H) / 16000))
+                   : Math.min(170, Math.floor((W * H) / 11000));
     for (var i = 0; i < n; i++) {
       var s = Math.random() * 2 + 1;
       var x = Math.random() * (W - s * 2) + s;
@@ -53,7 +58,8 @@
   }
 
   function connect() {
-    var maxSq = 130 * 130;
+    var maxD = mobile ? 95 : 130;
+    var maxSq = maxD * maxD;
     var mR2 = mouse.r * mouse.r;
     for (var a = 0; a < particles.length; a++) {
       var pa = particles[a];

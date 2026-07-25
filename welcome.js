@@ -13,6 +13,10 @@
 
   var LABELS = ['CTO AUDIT', 'SEO OPTIMIZATION', 'MARKETING AGENCY', 'CONVERSION', 'STYLE LIBRARY', 'BRAND AUTHORITY', 'COMPLIANCE', 'ANALYTICS'];
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // On phones/tablets, render ONE static frame instead of a live rAF loop — a
+  // full-screen animated canvas is a real battery/heat cost on mobile GPUs.
+  var mobile = window.matchMedia &&
+    (window.matchMedia('(max-width: 820px)').matches || window.matchMedia('(pointer: coarse)').matches);
 
   function injectCSS() {
     var st = document.createElement('style'); st.id = 'bakeWelcomeCSS';
@@ -56,7 +60,7 @@
     var canvas = w.querySelector('#bwCanvas');
     var labelsBox = w.querySelector('#bwLabels');
     var ctx = canvas.getContext('2d');
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var dpr = Math.min(window.devicePixelRatio || 1, mobile ? 1 : 2);
     var W = 0, H = 0, CX = 0, CY = 0, R = 0;
 
     function size() {
@@ -136,10 +140,10 @@
     }
 
     var raf = null;
-    if (reduce) { frame(performance.now()); cancelAnimationFrame(raf); } // one static render
+    if (reduce || mobile) { frame(performance.now()); cancelAnimationFrame(raf); } // one static render — mobile/reduced-motion
     else raf = requestAnimationFrame(frame);
     document.addEventListener('visibilitychange', function () {
-      if (!document.hidden && !reduce && w.parentNode) raf = requestAnimationFrame(frame);
+      if (!document.hidden && !reduce && !mobile && w.parentNode) raf = requestAnimationFrame(frame);
     });
 
     function proceed() {

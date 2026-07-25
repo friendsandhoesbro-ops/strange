@@ -173,7 +173,6 @@ function goToStep(n) {
   const next = document.getElementById(`step-${state.step}`);
   if (next) next.classList.add('active');
   updateStepUI();
-  if (window.setStepBackground) window.setStepBackground(n);   // swap per-step BG clip
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
