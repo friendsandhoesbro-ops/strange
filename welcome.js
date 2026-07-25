@@ -9,8 +9,7 @@
 // ──────────────────────────────────────────────────────────────────────────────
 (function () {
   'use strict';
-  var KEY = 'epa_welcome_seen';
-  try { if (sessionStorage.getItem(KEY) === '1') return; } catch (e) {}
+  // Shows on EVERY page load / refresh (no once-per-session gate) — owner's request.
 
   var LABELS = ['CTO AUDIT', 'SEO OPTIMIZATION', 'MARKETING AGENCY', 'CONVERSION', 'STYLE LIBRARY', 'BRAND AUTHORITY', 'COMPLIANCE', 'ANALYTICS'];
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -81,10 +80,12 @@
     });
 
     var N = 110;                                       // ring dots
-    var chords = [];                                   // {a,b,born,life}
+    var chords = [];                                   // {a,b,born,life,ph,spd}
     function spawnChord(now) {
       chords.push({ a: Math.floor(Math.random() * N), b: Math.floor(Math.random() * N),
-                    born: now, life: 7000 + Math.random() * 9000 });
+                    born: now, life: 7000 + Math.random() * 9000,
+                    ph: Math.random() * Math.PI * 2,   // per-line pulse phase (independent shimmer)
+                    spd: 0.0011 + Math.random() * 0.0011 }); // per-line pulse speed (~3–6s cycle)
     }
     var t0 = performance.now();
     for (var i = 0; i < 85; i++) spawnChord(t0 - Math.random() * 8000);
@@ -99,13 +100,14 @@
       for (var c = chords.length - 1; c >= 0; c--) {
         var ch = chords[c], age = now - ch.born;
         if (age > ch.life) { chords.splice(c, 1); spawnChord(now); continue; }
-        var k = age / ch.life;
-        var alpha = 0.11 * Math.sin(Math.PI * Math.min(1, Math.max(0, k)));
+        // Pulsing opacity: base 25%, swings the full 0–100% range (each line on its own phase).
+        var pulse = 0.25 + 0.75 * Math.sin(now * ch.spd + ch.ph);
+        var alpha = pulse < 0 ? 0 : (pulse > 1 ? 1 : pulse);
         var a1 = (ch.a / N) * Math.PI * 2 + rot, a2 = (ch.b / N) * Math.PI * 2 + rot;
         var x1 = CX + Math.cos(a1) * R, y1 = CY + Math.sin(a1) * R;
         var x2 = CX + Math.cos(a2) * R, y2 = CY + Math.sin(a2) * R;
-        ctx.strokeStyle = 'rgba(255,214,186,' + alpha.toFixed(3) + ')';
-        ctx.lineWidth = 0.7;
+        ctx.strokeStyle = 'rgba(255,176,120,' + alpha.toFixed(3) + ')';
+        ctx.lineWidth = 0.8;
         ctx.beginPath();
         ctx.moveTo(x1, y1);
         ctx.quadraticCurveTo(CX + (Math.random() * 0 ), CY, x2, y2);
@@ -141,7 +143,6 @@
     });
 
     function proceed() {
-      try { sessionStorage.setItem(KEY, '1'); } catch (e) {}
       w.classList.add('bw-out');
       setTimeout(function () { if (raf) cancelAnimationFrame(raf); w.remove(); }, 750);
     }

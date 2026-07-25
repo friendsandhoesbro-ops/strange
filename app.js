@@ -173,6 +173,7 @@ function goToStep(n) {
   const next = document.getElementById(`step-${state.step}`);
   if (next) next.classList.add('active');
   updateStepUI();
+  if (window.setStepBackground) window.setStepBackground(n);   // swap per-step BG clip
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -244,6 +245,7 @@ function startGeneration() {
   const resultsEl = document.getElementById('resultsState');
   loadingEl.style.display = 'flex';
   resultsEl.style.display = 'none';
+  if (window.LoadingFX) window.LoadingFX.start();   // ember particle-network backdrop
 
   const stepsEl = document.getElementById('loadingSteps');
   const bar     = document.getElementById('loadingBar');
@@ -322,6 +324,7 @@ function showResults() {
 
   state.scores = scores;
 
+  if (window.LoadingFX) window.LoadingFX.stop();
   document.getElementById('loadingState').style.display = 'none';
   document.getElementById('resultsState').style.display = 'block';
 

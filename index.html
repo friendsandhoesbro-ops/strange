@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=12">
+<link rel="stylesheet" href="styles.css?v=14">
 <!-- ACCESS GATE (testing-phase lock). To DISABLE: delete/comment the line below + redeploy.
      To change who gets in: edit the SECRET in auth.js. Fully self-contained & removable. -->
 <script src="auth.js?v=4"></script>
@@ -17,6 +17,8 @@
 <!-- Cinematic background: looping video + green/cyan glow + grid (decorative, behind app) -->
 <div id="bgFx" aria-hidden="true">
   <video id="bgVideo" muted loop playsinline autoplay webkit-playsinline preload="auto"></video>
+  <!-- Per-step AI clips (steps 2–7) crossfade in over the base clip — see bg.js -->
+  <video id="bgVideo2" muted loop playsinline webkit-playsinline preload="none"></video>
   <div class="bg-tint"></div>
   <div class="bg-glow"></div>
   <div class="bg-grid"></div>
@@ -509,13 +511,16 @@
     <div class="step-panel" id="step-7">
       <!-- Loading state -->
       <div id="loadingState" class="loading-state">
-        <div class="loading-orb"></div>
-        <div class="loading-title">Architecting Your Enterprise Specification</div>
-        <div class="loading-status" id="loadingStatus" role="status" aria-live="polite">Analysing business requirements...</div>
-        <div class="loading-progress">
-          <div class="loading-bar" id="loadingBar"></div>
+        <canvas id="loadingCanvas" class="loading-canvas" aria-hidden="true"></canvas>
+        <div class="loading-content">
+          <div class="loading-pill"><span class="loading-pill-dot"></span> Enterprise Rendering Engine</div>
+          <div class="loading-title">Architecting Your Enterprise Specification</div>
+          <div class="loading-status" id="loadingStatus" role="status" aria-live="polite">Analysing business requirements...</div>
+          <div class="loading-progress">
+            <div class="loading-bar" id="loadingBar"></div>
+          </div>
+          <div class="loading-steps" id="loadingSteps"></div>
         </div>
-        <div class="loading-steps" id="loadingSteps"></div>
       </div>
 
       <!-- Results state -->
@@ -633,7 +638,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.13/dist/hls.min.js"></script>
-<script src="bg.js?v=3"></script>
+<script src="bg.js?v=4"></script>
 <script src="config.js?v=3"></script>
 <script src="data.js?v=5"></script>
 <script src="style-library.js?v=10"></script>
@@ -643,7 +648,8 @@
 <script src="glossary.js?v=2"></script>
 <script src="pairings.js?v=4"></script>
 <script src="build.js?v=8"></script>
-<script src="app.js?v=13"></script>
+<script src="app.js?v=14"></script>
+<script src="loading-fx.js?v=1"></script>
 <script src="guide.js?v=1"></script>
 <script src="splash.js?v=1"></script>
 <script src="reveal.js?v=1"></script>
@@ -659,6 +665,6 @@
 <script src="save.js?v=1"></script>
 <script src="import.js?v=1"></script>
 <script src="history.js?v=1"></script>
-<script src="welcome.js?v=1"></script>
+<script src="welcome.js?v=2"></script>
 </body>
 </html>

@@ -46,11 +46,15 @@ body {
 
 /* ── Cinematic background (video + tint + green/cyan glow + grid lines) ── */
 #bgFx { position: fixed; inset: 0; z-index: -3; pointer-events: none; overflow: hidden; }
-#bgVideo {
+#bgVideo, #bgVideo2 {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; opacity: 0; transition: opacity 1.2s ease;
 }
 #bgFx.bg-ready #bgVideo { opacity: 0.55; }
+/* Per-step clip (steps 2–7) crossfades in over the base clip. Its authoritative
+   opacity + ember grade — matched to the base clip — is set in the Molten Ember
+   layer below (after the base clip's !important override). */
+#bgVideo2 { z-index: 1; }
 /* readability gradients: dark from the left + bottom-up */
 .bg-tint {
   position: absolute; inset: 0;
@@ -92,7 +96,7 @@ body {
   -webkit-backdrop-filter: blur(12px);
 }
 .header-inner {
-  max-width: 960px; margin: 0 auto;
+  max-width: min(1760px, 95vw); margin: 0 auto;
   padding: 0 24px; height: 58px;
   display: flex; align-items: center; justify-content: space-between;
 }
@@ -138,7 +142,7 @@ body {
   backdrop-filter: blur(12px);
 }
 .step-bar-inner {
-  max-width: 960px; margin: 0 auto;
+  max-width: min(1760px, 95vw); margin: 0 auto;
   padding: 0 24px; height: 52px;
   display: flex; align-items: center; gap: 0;
 }
@@ -174,7 +178,7 @@ body {
 
 /* ── MAIN ── */
 .main {
-  max-width: 960px; margin: 0 auto;
+  max-width: min(1760px, 95vw); margin: 0 auto;
   padding: 140px 24px 120px;
   min-height: 100vh;
 }
@@ -327,7 +331,7 @@ body {
   backdrop-filter: blur(12px);
 }
 .footer-nav-inner {
-  max-width: 960px; margin: 0 auto;
+  max-width: min(1760px, 95vw); margin: 0 auto;
   padding: 0 24px; height: 64px;
   display: flex; align-items: center; justify-content: space-between;
 }
@@ -361,20 +365,35 @@ body {
 }
 .btn-secondary:hover { border-color: var(--border-bright); color: var(--text-1); }
 
-/* ── LOADING ── */
+/* ── LOADING (interactive ember particle-network — see loading-fx.js) ── */
 .loading-state {
-  text-align: center; padding: 80px 0; display: flex;
-  flex-direction: column; align-items: center; gap: 20px;
+  position: relative; overflow: hidden;
+  min-height: 68vh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 20px;
+  border: 1px solid var(--border); border-radius: 20px;
+  background:
+    radial-gradient(60% 60% at 50% 45%, rgba(255,90,31,0.10), transparent 70%),
+    rgba(9,7,6,0.66);
+  -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
 }
-.loading-orb {
-  width: 72px; height: 72px; border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #ffd0a8, #ff5a1f, #2f9e6e);
-  animation: pulse 2s ease-in-out infinite;
-  box-shadow: 0 0 40px rgba(255,90,31,0.4);
+.loading-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+.loading-content {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column; align-items: center; gap: 20px;
+  padding: 48px 20px; text-align: center; width: 100%;
 }
-@keyframes pulse {
-  0%, 100% { transform: scale(1); box-shadow: 0 0 40px rgba(255,90,31,0.4); }
-  50%       { transform: scale(1.08); box-shadow: 0 0 60px rgba(255,90,31,0.6); }
+.loading-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 14px; border-radius: 999px;
+  background: rgba(255,90,31,0.10); border: 1px solid rgba(255,90,31,0.22);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #ffb454;
+}
+.loading-pill-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: #ff5a1f;
+  box-shadow: 0 0 10px rgba(255,90,31,0.9);
 }
 .loading-title { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
 .loading-status { font-size: 14px; color: var(--text-2); }
@@ -1186,8 +1205,6 @@ body {
   box-shadow: 0 0 0 3px rgba(255,90,31,0.16), 0 0 22px rgba(255,90,31,0.14);
 }
 
-/* Loading orb — gradient core + magenta halo */
-.loading-orb { background: radial-gradient(circle at 32% 30%, #7ee7c0, #ff5a1f 45%, #2f9e6e) !important; }
 
 /* Cards lift gently on hover */
 .project-card, .chip, .score-card, .tool-btn, .ql-btn, .bs-platform-card { transition: all 0.18s cubic-bezier(0.22,1,0.36,1); }
@@ -1295,8 +1312,6 @@ body {
 .chip { background: rgba(255,255,255,0.022); }
 .chip.selected { color: #bff3da; }
 
-/* a touch of violet (secondary) so it isn't mono-green */
-.loading-orb { box-shadow: 0 0 60px rgba(255,90,31,0.4), 0 0 90px rgba(168,85,247,0.18) !important; }
 .scores-section::after {
   content: ''; position: absolute; top: 0; right: 0; width: 40%; height: 100%;
   background: radial-gradient(60% 80% at 100% 0%, rgba(168,85,247,0.08), transparent 70%);
@@ -1440,6 +1455,11 @@ html, body { overflow-x: hidden; max-width: 100%; }
 /* — Living aurora background (video dimmed; drifting violet/teal/pink blobs) — */
 #bgFx { background: var(--bg); }
 #bgFx.bg-ready #bgVideo { opacity: 0.10 !important; filter: sepia(0.55) saturate(1.15) hue-rotate(-18deg) brightness(0.85); }
+/* Per-step AI clips (steps 2–7) — match the base clip exactly: same 0.10 opacity
+   and ember grade; the base clip fades fully out beneath the active step clip. */
+#bgVideo2 { filter: sepia(0.55) saturate(1.15) hue-rotate(-18deg) brightness(0.85); }
+#bgFx.bg-step-on #bgVideo  { opacity: 0 !important; }
+#bgFx.bg-step-on #bgVideo2 { opacity: 0.10 !important; }
 .bg-tint {
   background:
     radial-gradient(125% 90% at 50% -12%, transparent 38%, rgba(11,9,7,0.55) 100%),
