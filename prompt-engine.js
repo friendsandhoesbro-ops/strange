@@ -198,6 +198,78 @@ CONSENT & QUALITY:
   properties — no duplicates, no missing conversion events on the thank-you/confirmation step.`);
   }
 
+  // Ship integrity — the tells that give away an AI-built site the moment someone looks
+  // at it: an empty page source, a dev-server fingerprint left in the browser, no share
+  // card, no llms.txt, source maps served to the public. The SEO section covers the
+  // classic on-page work; this covers the "does it look shipped by a professional" layer.
+  _shipIntegrity() {
+    const name   = this.d.businessName || 'the business';
+    const slug   = (this.d.businessName || 'company').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    // Static-first stacks already ship real HTML — the risk there is JS-injected content,
+    // not missing SSR. Check static BEFORE Next, since some stacks read "Static … or Next.js".
+    const isStatic = /static|astro|plain html/i.test(this.stack || '');
+    const isNext   = !isStatic && /next/i.test(this.stack || '');
+    const renderLine = isStatic
+      ? `• This stack ships real HTML already — keep it that way: write the copy INTO the markup. Never build the page by injecting innerHTML from a script on load, and never leave a page whose body is empty until JS runs.`
+      : isNext
+        ? `• Use server components / SSG for all public marketing pages — no "use client" at the top of a page that is really just content.`
+        : `• Server-render or pre-render (static-generate) every public page. If the stack is client-only, add a pre-render/SSG step at build time.`;
+    return (
+`Anyone can tell a site was thrown together by an AI builder in about ten seconds. These are
+the tells. None of them are optional, and none of them are "polish for later" — they are part
+of shipping.
+
+REAL PAGE SOURCE (the #1 giveaway)
+• "View source" on every public page must show the actual content — headline, copy, links,
+  nav — as real HTML. If the source is an empty <div id="root"></div> and the words only
+  appear after JavaScript runs, the page is invisible to crawlers, link previews, and AI
+  agents, and it reads as unfinished.
+${renderLine}
+• Client-side rendering is for authenticated app screens, not for the homepage.
+• Every page has a real <title>, <meta name="description">, <html lang="…">, and a
+  <meta name="viewport"> — set per page, never one global default repeated everywhere.
+
+NO DEV-SERVER FINGERPRINTS IN PRODUCTION
+• Ship a production BUILD, never a dev server. The deployed site must contain no
+  /@vite/client, no HMR/websocket client, no "React DevTools" console notice, no
+  webpack-dev-server or Fast Refresh runtime.
+• Delete the starter identity: no "Vite + React" / "Create Next App" / "Lovable" /
+  builder-default <title>, no default Vite or framework favicon, no leftover starter
+  boilerplate, demo route, or template README text anywhere in the shipped site.
+• No source maps served publicly — do not deploy .map files to the public origin. Upload
+  them to the error tracker (Sentry) privately instead, so stack traces stay readable
+  without handing the world your source.
+• Zero console output in production: no errors, no warnings, no leftover console.log
+  debugging. Open DevTools on the deployed site and the console must be clean.
+• Strip dev-only artefacts: commented-out code blocks, unused imports, test/demo data,
+  .env values in client bundles, and any API key that ended up in front-end code.
+
+SHARE CARD (what it looks like when someone pastes the link)
+• Open Graph on every page: og:title, og:description, og:url, og:type, og:site_name
+  ("${name}"), and og:image — an actual 1200×630 branded image, not a stretched logo.
+• Twitter/X card: twitter:card = summary_large_image, twitter:title, twitter:description,
+  twitter:image.
+• Generate the image per page where it matters (home, each service, each blog post) — a
+  dynamic OG image route is ideal${isNext ? ' (Next.js opengraph-image / ImageResponse)' : ''}; one good default is the minimum.
+• Test it: pasting the URL into WhatsApp, Slack, LinkedIn and X must show a proper card
+  with a real image, not a blank rectangle or a broken-image icon.
+
+ICON SET (not just favicon.ico)
+• favicon.svg + favicon.ico, apple-touch-icon.png (180×180), and a site.webmanifest with
+  192/512 PNGs and a theme-color that matches the palette in both light and dark.
+• The tab icon must be the brand mark — never the framework default.
+
+llms.txt — MACHINE-READABLE SUMMARY FOR AI
+• Publish /llms.txt at the site root: a short Markdown file that tells AI assistants what
+  ${name} is, what it sells, where the key pages live, and how to get in touch. Format:
+  an H1 with the name, a one-line blockquote summary, then linked sections
+  (## Services, ## About, ## Contact) as "- [Page title](https://${slug}.com/path): one-line description".
+• Keep it truthful and short — it is a map to real pages, not marketing copy, and it must
+  never contain a claim the site itself does not support.
+• Optional companion: /llms-full.txt with the expanded page text for deeper retrieval.
+• Regenerate it whenever pages are added, the same way sitemap.xml is regenerated.`);
+  }
+
   // Design reference — when the user uploads a screenshot via "Design Match", the
   // client extracts its palette + theme + mood (client-side, no AI). We bake that into
   // the prompt as an authoritative look to match, overriding the auto library style.
@@ -386,6 +458,10 @@ SYSTEM (typography, spacing, motion, accessibility, anti-slop) still applies on 
     h1('SEO ARCHITECTURE');
     lines.push(this._seoStrategy());
 
+    // ── SHIP INTEGRITY (the tells that give away an AI-built site) ────────
+    h1('SHIP INTEGRITY — NOTHING THAT SAYS "AI-GENERATED DRAFT"');
+    lines.push(this._shipIntegrity());
+
     // ── ANALYTICS & EVENT TRACKING (instrument the funnel, not just pageviews) ─
     h1('ANALYTICS & EVENT TRACKING');
     lines.push(this._analyticsPlan());
@@ -469,6 +545,12 @@ SYSTEM (typography, spacing, motion, accessibility, anti-slop) still applies on 
     lines.push(`□ 404 and error pages implemented and styled`);
     lines.push(`□ Sitemap.xml and robots.txt generated`);
     lines.push(`□ SSL/TLS configured, HTTP → HTTPS redirect active`);
+    lines.push(`□ View source shows real content (server-rendered/pre-rendered), not an empty root div`);
+    lines.push(`□ No dev-server fingerprints shipped (no /@vite/client, HMR socket, DevTools notice)`);
+    lines.push(`□ No builder-default title or framework favicon; brand icon set complete (svg/ico/apple-touch/webmanifest)`);
+    lines.push(`□ No .map source maps served publicly (uploaded privately to Sentry instead)`);
+    lines.push(`□ og:image + twitter:image render a real card when the URL is pasted into Slack/WhatsApp/LinkedIn`);
+    lines.push(`□ /llms.txt published and accurate`);
     if (this.d.compliance?.includes('gdpr')) lines.push(`□ Cookie consent banner functional, granular opt-in/out working`);
     if (this.d.compliance?.includes('hipaa')) lines.push(`□ HIPAA BAA signed with all third-party vendors`);
     if (this.d.features?.includes('Payments & Billing')) lines.push(`□ Payment flow tested with test card numbers in staging`);
@@ -541,6 +623,18 @@ SYSTEM (typography, spacing, motion, accessibility, anti-slop) still applies on 
     lines.push(`8. Canonical tags — present on all pages to prevent duplicate content`);
     lines.push(`9. Structured data — Organisation, LocalBusiness, or relevant schema present?`);
     lines.push(`10. Core Web Vitals — Google uses these as ranking signals\n`);
+
+    lines.push(`── SHIP-INTEGRITY AUDIT (the "does this look AI-generated" pass) ───────────\n`);
+    lines.push(`1. View source on 3 public pages — is the real content in the HTML, or an empty root div?`);
+    lines.push(`2. Dev fingerprints — any /@vite/client, HMR socket, React DevTools notice, or dev-server runtime shipped?`);
+    lines.push(`3. Starter identity — builder-default <title>, default framework favicon, or leftover template copy?`);
+    lines.push(`4. Source maps — are .map files publicly reachable in production? (They should not be.)`);
+    lines.push(`5. Console — open DevTools on production: any errors, warnings, or stray console.log?`);
+    lines.push(`6. Share card — paste each key URL into Slack/WhatsApp/LinkedIn: real og:image (1200×630) and title?`);
+    lines.push(`7. Icon set — favicon.svg/.ico, apple-touch-icon, webmanifest, theme-color all present and on-brand?`);
+    lines.push(`8. /llms.txt — present, accurate, and linking to real pages?`);
+    lines.push(`9. Secrets — any API key, token, or .env value visible in the client bundle?`);
+    lines.push(`10. Placeholder residue — lorem, "Your headline here", href="#", or dead buttons anywhere?\n`);
 
     lines.push(`── ACCESSIBILITY AUDIT ─────────────────────────────────────────────────────\n`);
     lines.push(`1. Run axe DevTools on every page — zero critical violations permitted`);

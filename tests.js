@@ -342,6 +342,46 @@
     assert(FeaturePairings.conflicts().some(c => c.tooMany && c.count === 4), 'too-many-goals not flagged');
   });
 
+  // ── Ship integrity (no vibe-coded fingerprints) ──────────────────────────────
+  test('ship integrity: section is always present in the build prompt', () => {
+    const b = new PromptEngine(bizB2B, { offerOptions: false, budgetMode: false }).generateAll().build;
+    has(b, 'SHIP INTEGRITY');
+    has(b, 'REAL PAGE SOURCE');
+  });
+  test('ship integrity: bans dev-server fingerprints and public source maps', () => {
+    const b = new PromptEngine(bizB2B).generateAll().build;
+    has(b, '/@vite/client');
+    has(b, 'React DevTools');
+    has(b, 'No source maps served publicly');
+  });
+  test('ship integrity: demands social share cards and a full icon set', () => {
+    const b = new PromptEngine(bizB2B).generateAll().build;
+    has(b, 'og:image'); has(b, '1200×630');
+    has(b, 'summary_large_image');
+    has(b, 'apple-touch-icon'); has(b, 'site.webmanifest');
+  });
+  test('ship integrity: requires llms.txt built from the real business name', () => {
+    const b = new PromptEngine({ businessName: 'Ember & Oak Coffee', projectType: 'company' }).generateAll().build;
+    has(b, '/llms.txt');
+    has(b, 'ember-oak-coffee');
+  });
+  test('ship integrity: render advice matches the stack (static vs Next vs client-only)', () => {
+    const port = new PromptEngine({ businessName: 'Sam', projectType: 'portfolio' }).generateAll().build;   // Static/Astro
+    has(port, 'write the copy INTO the markup');
+    nothas(port, 'Use server components');
+    const shop = new PromptEngine({ businessName: 'Shop', projectType: 'ecommerce' }).generateAll().build;  // Next.js 15
+    has(shop, 'Use server components');
+    const spa = new PromptEngine({ businessName: 'App', projectType: 'saas', framework: 'React + Vite' }).generateAll().build;
+    has(spa, 'Server-render or pre-render');
+  });
+  test('ship integrity: gates and CTO audit both check the new items', () => {
+    const r = new PromptEngine(bizB2B).generateAll();
+    has(r.build, 'not an empty root div');
+    has(r.build, '/llms.txt published and accurate');
+    has(r.cto, 'SHIP-INTEGRITY AUDIT');
+    has(r.cto, 'empty root div');
+  });
+
   // ── Glossary + learning ──────────────────────────────────────────────────────
   test('glossary covers key jargon and field labels', () => {
     ['cms', 'seo', 'crm'].forEach(k => assert(GLOSSARY[k], 'missing ' + k));
